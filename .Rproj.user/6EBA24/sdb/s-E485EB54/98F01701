@@ -1,0 +1,17 @@
+{
+    "contents" : "# Function to create a votes object with the data from individual voting records files\nlegiscanVotes <- function(file) {\n  \n  # Require the XML library to be loaded\n  #require(XML); require(lubridate)\n  \n  # Parse the XML tree\n  voteobject <- xmlRoot(xmlParse(file))\n  \n  # Parse the metadata from the voting records\n  metaParsed <- xmlToList(voteobject[[\"roll_call\"]])\n  \n  # Transform the shape to make it more compatible for a data frame\n  meta <- as.data.frame(metaParsed[-10], stringsAsFactors = FALSE)\n  \n  # Replace date with date formatted value\n  meta$date <- ymd(meta$date)\n  \n  # Make sure numeric values for overall counts are stored as numeric data\n  meta[, c(5:9)] <- as.numeric(meta[, c(5:9)])\n  \n  # Extract the individual voting records of legislators into separate data frame\n  votes <- xmlToDataFrame(voteobject[[\"roll_call\"]][[\"votes\"]], stringsAsFactors = FALSE)\n  \n  # Store both data frames in a single list object\n  votesOnBill <- list(meta = meta, records = votes)\n  \n  # Return the list obejct\n  return(votesOnBill)\n  \n  # End function call    \n}\n\n\n",
+    "created" : 1418569352267.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1322024630",
+    "id" : "98F01701",
+    "lastKnownWriteTime" : 1418569404,
+    "path" : "~/legiscanR/R/legiscanVotes.R",
+    "project_path" : "R/legiscanVotes.R",
+    "properties" : {
+        "tempName" : "Untitled4"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

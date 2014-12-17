@@ -1,0 +1,9 @@
+{
+    "path" : "~/legiscanR",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

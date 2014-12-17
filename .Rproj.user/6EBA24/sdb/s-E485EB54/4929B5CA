@@ -1,0 +1,17 @@
+{
+    "contents" : "testbills <- function(x) {\n  \n  bill <- xmlRoot(xmlParse(file))\n  \n  # Extract the bill elements from the bill object to be further processed\n  billobject <- bill[[\"bill\"]]\n  \n  # Create the session ID/name list\n  session <- as.data.frame(xmlToList(billobject[[\"session\"]]), \n                           stringsAsFactors = FALSE)\n  \n  # Define named list with all of the single element values\n  singleValueList <- list(bill_id = \"bill_id\", change_hash = \"change_hash\", url = \"url\", \n                          state_link = \"state_link\", completed = \"completed\", \n                          status = \"status\", status_date = \"status_date\", state = \"state\",\n                          state_id = \"state_id\", bill_number = \"bill_number\", \n                          bill_type = \"bill_type\", body = \"body\",\n                          body_id = \"body_id\", current_body = \"current_body\", \n                          current_body_id = \"current_body_id\", title = \"title\", \n                          description = \"description\", committee = \"committee\")\n  \n  # Build the list containing all the single element values\n  billData <- lapply(singleValueList, FUN = function(singles){\n    tryCatch(xmlToList(billobject[[singles]]), \n             error = function(e) {\n               return(list(singles = NA))\n             })\n  })\n  \n}",
+    "created" : 1418584581530.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "179594451",
+    "id" : "4929B5CA",
+    "lastKnownWriteTime" : 386459920,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
