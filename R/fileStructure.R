@@ -15,8 +15,8 @@
 # Function to build a file structure object to get/build historical data
 fileStructure <- function(filepath) {
 
-	# Move to location where historical data are stored
-	setwd(filepath)
+	# Make sure file path ends with slash
+	if (grepl("/$", filepath) == FALSE) filepath <- paste0(filepath, "/")
 	
 	# Identify the directory path to each of the sessions
 	sessionRoot <- split(paste0(filepath, list.files(), "/"), 
