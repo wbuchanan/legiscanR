@@ -1,0 +1,24 @@
+# Files too large for recommended/allowable size on github
+data/billSpons
+data/billTxt2
+data/billProg2
+data/recordVotes
+data/billHist
+data/billProg
+data/billTxt
+data/billHist2
+data/billSpons2
+data/bills
+data/msHistoricalXML
+
+# History files
+.Rhistory
+.Rapp.history
+# Example code in package build process
+*-Ex.R
+# RStudio files
+.Rproj.user/
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+.Rproj.user
