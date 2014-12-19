@@ -1,3 +1,17 @@
+##' @title Legiscan Bill Data
+##' @description Parses and arranges XML output from 
+##' Legiscan master data dumps vote subdirectory
+##' @param file An XML file object from the vote subdirectory
+##' @return Creates a list object containing a data frame 
+##' for voting metadata and individual legislators' votes
+##' @export
+##' @examples
+#' require(legiscanR)
+#' directoryTree <- fileStructure("data/msHistorical/")
+#' files <- fileLists(directoryTree)
+#' bills <- legiscanBill(files[["votes"]][[1]][[1]])
+
+# Function to parse/clean XML output from LegiScan API calls
 legiscanBill <- function(file) {
   
   # Need to make sure the XML and lubridate libraries are loaded when function is called

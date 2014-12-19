@@ -14,6 +14,9 @@
 
 # Function to build a file structure object to get/build historical data
 fileStructure <- function(filepath) {
+  
+  # Store current directory; move to directory specified in function call
+  curdir <- getwd(); setwd(filepath)
 
 	# Make sure file path ends with slash
 	if (grepl("/$", filepath) == FALSE) filepath <- paste0(filepath, "/")
@@ -47,6 +50,9 @@ fileStructure <- function(filepath) {
 	# Remove objects no longer needed
 	rm(fileClass, sessionRoot)
 	
+  # Move back to original directory
+  setwd(curdir)
+  
 	# Return the file structure object
 	return(fileList)
 
