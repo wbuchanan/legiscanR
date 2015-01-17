@@ -1,27 +1,13 @@
-legiscanR <- function() {
+#' @title legiscanR functions and the LegiScan Class object/methods
+#' @description
+#' An R interface to the LegiScan API (\url{http://legiscan.com/}) for
+#' accessing US legislative data.  This package provides the LegiScan class
+#' and methods for sending requests to the API for regularly updated
+#' changes to legislation/votes, as well as functions and methods to
+#' parse the data from the API calls and from master download files.
+#'
+#' @docType package
+#' @name legiscanR-package
+NULL
 
-  # Get current directory
-  curdir <- getwd()
 
-  # Set directory to location of lookuptables
-  setwd("data/lookupTables/")
-
-  # Read the lookup tables into a list object
-  lookupTables <- lapply(list.files(), read.csv, stringsAsFactors = FALSE)
-
-  # Create list object with names of lookup Tables
-  lookupNames <- list(billTextMime = "billTextMime", billTextType = "billTextType",
-                      billType = "billType", body = "body", progress = "progress",
-                      reason = "reason", role = "role", sastType = "sastType",
-                      state = "state", supplement = "supplement")
-
-  # Name the elements of the look up tables list object
-  names(lookupTables) <- lookupNames
-
-  # Return the lookup tables object
-  legiscanLookupTables <<- lookupTables
-
-  # Restore original working directory
-  setwd(curdir)
-
-}

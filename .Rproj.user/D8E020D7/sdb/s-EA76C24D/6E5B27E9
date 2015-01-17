@@ -1,0 +1,16 @@
+{
+    "contents" : "#' @title Legiscan Legislator Data\n#' @description Parses and arranges XML dumps from\n#' Legiscan master data dumps people subdirectory\n#' @param file An XML file object from the people subdirectory\n#' @return Creates a list object containing a data frame\n#' for identifying individual legislators\n#' @examples \\donttest{\n#' # Build directory structure from master data downloads\n#' directoryTree <- fileStructure(\"data/msHistorical/\")\n#'\n#' # Create object with all file references stored in it\n#' files <- fileLists(directoryTree)\n#'\n#' # Pass the function a bill object for processing\n#' people <- legiscanPerson(files[[\"people\"]])\n#' }\n#' @family Parsing and Cleaning LegiScan Data\n#' @name legiscanPerson\n#' @import XML plyr\n#' @export legiscanPerson\nlegiscanPerson <- function(file) {\n\n\t# Parse XML Tree\n\txmlobject <- XML::xmlRoot(XML::xmlParse(file))\n\n\t# Initial parsing of the data object\n\tinitialPerson <- XML::xmlToList(xmlobject[[\"person\"]])\n\n\t# Need to replace NULL values with NA for consistency in the data storage\n\twithOutNulls <- plyr::llply(initialPerson, FUN = function(cleanNulls) {\n\n\t\t# If value is null replace it with generic missing value\n\t\tif (is.null(cleanNulls)) cleanNulls <- NA\n\n\t\t# If there is currently a value in that slot retain it\n\t\telse cleanNulls <- cleanNulls\n\n\t})\n\n\t# Create the data frame row for the person\n\tfinalPerson <- as.data.frame(withOutNulls, stringsAsFactors = FALSE)\n\n\t# Return the cleaned/formatted object\n\treturn(finalPerson)\n\n} # End of Function\n",
+    "created" : 1421479537090.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1797939391",
+    "id" : "6E5B27E9",
+    "lastKnownWriteTime" : 1421479553,
+    "path" : "~/Desktop/Programs/R/legiscanR/R/legiscanPerson.R",
+    "project_path" : "R/legiscanPerson.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

@@ -2,8 +2,8 @@
 billdata <- function(fileobject, JSON = TRUE) {
 
 	# Parse the JSON object
-	if (JSON == TRUE) legiObject <- fromJSON(fileobject)
-	else legiObject <- xmlRoot(xmlParse(fileobject))
+	if (JSON == TRUE) legiObject <- RJSONIO::fromJSON(fileobject)
+	else legiObject <- XML::xmlRoot(XML::xmlParse(fileobject))
 
 	# Strip the outer layer elements
 	legiObject <- legiObject[["bill"]]

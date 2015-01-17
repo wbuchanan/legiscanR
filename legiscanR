@@ -1,0 +1,58 @@
+amendment,LegiScan,numeric-method
+                             LegiScan Caller Methods - amendment
+bill,LegiScan,NULL,character,numeric-method
+                             LegiScan Caller Methods - bill
+bill,LegiScan,numeric,NULL,NULL-method
+                             LegiScan Caller Methods - bill
+billids                      Page validation
+billText,LegiScan,numeric-method
+                             LegiScan Caller Methods - billText
+fileLists                    Build file listing for Legiscan data
+fileStructure                Build Directory Tree Object for Legiscan Data Downloads
+functions                    Page validation
+functions                    State validation
+functions                    Year validation
+getAPI                       LegiScan Accessor Methods - getAPI
+getFormat,LegiScan-method    LegiScan Accessor Methods - getFormat
+getUrl,LegiScan-method       LegiScan Accessor Methods - getUrl
+legiBillHist                 Legiscan Bill Historical Data
+legiBillJSON                 Legiscan Bill Data
+legiBillMeta                 Legiscan Bill Metadata
+legiBillProg                 Legiscan Bill Progress Tracking Data
+legiBillSpons                Legiscan Bill Sponsor Data
+legiBillTxt                  Legiscan Bill Text Data
+legiPersonJSON               Legiscan Legislator Data
+LegiScan-class               LegiScan API Class object
+legiscanBill                 Legiscan Bill Data
+legiscanVotes                Legiscan Voting Data
+legisearch,LegiScan,character,NULL,character,NULL,NULL-method
+                             LegiScan Caller Methods - legisearch
+legisearch,LegiScan,character,NULL,character,NULL,numeric-method
+                             LegiScan Caller Methods - legisearch
+legisearch,LegiScan,character,NULL,character,numeric,NULL-method
+                             LegiScan Caller Methods - legisearch
+legisearch,LegiScan,character,NULL,character,numeric,numeric-method
+                             LegiScan Caller Methods - legisearch
+legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method
+                             LegiScan Caller Methods - legisearch
+legiVotesJSON                Legiscan Voting Data
+masterList                   LegiScan Caller Methods - masterList
+masterList,LegiScan,character,missing-method
+                             LegiScan Caller Methods - masterList
+masterList,LegiScan,missing,numeric-method
+                             LegiScan Caller Methods - masterList
+rollCall,LegiScan,numeric-method
+                             LegiScan Caller Methods - rollCall
+sessionList                  LegiScan Caller Methods - sessionList
+sessionList,LegiScan,character-method
+                             LegiScan Caller Methods - sessionList
+setAPI                       LegiScan Accessor Methods - setAPI
+setFormat                    LegiScan Constructor Methods - setFormat
+setUrl,LegiScan-method       LegiScan Constructor Methods - setUrl
+sponsor,LegiScan,numeric-method
+                             LegiScan Caller Methods - sponsor
+stateList                    LegiScan Caller Methods - stateList
+stateList,LegiScan-method    LegiScan Caller Methods - stateList
+supplement,LegiScan,numeric-method
+                             LegiScan Caller Methods - supplement
+xjformat                     Determine if request was sent as XML or JSON

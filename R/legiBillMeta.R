@@ -1,21 +1,28 @@
-##' @title Legiscan Bill Metadata
-##' @description Parses and arranges JSON output from
-##' Legiscan master data downloads bills subdirectory
-##' @param file A JSON file object from the bills subdirectory
-##' @return Creates a list object containing a data frame
-##' of metadata for an individual piece of legislation
-##' @export
-##' @examples
-#' require(legiscanR)
+#' @title Legiscan Bill Metadata
+#' @description Parses and arranges JSON output from
+#' Legiscan master data downloads bills subdirectory
+#' @param file A JSON file object from the bills subdirectory
+#' @return Creates a list object containing a data frame
+#' of metadata for an individual piece of legislation
+#' @examples \donttest{
+#' # Create directory object
 #' directoryTree <- fileStructure("data/msHistorical/")
+#'
+#' # Create file list object
 #' files <- fileLists(directoryTree)
+#'
+#' # Parse the meta data from the bill file
 #' bills <- legiBillMeta(files[["bills"]][[1]][[1]])
-
-# Function to parse/clean JSON output from LegiScan API calls
-legiBillMeta <- function(fileobject) {
+#' }
+#'
+#' @import RJSONIO lubridate plyr dplyr magrittr
+#' @export legiBillMeta
+#' @family Parsing and Cleaning LegiScan Data
+#' @name legiBillMeta
+legiBillMeta <- function(file) {
 
 	# Parse the JSON object
-	billobject <- billdata(fileobject)
+	billobject <- billdata(file)
 
 	# Create the session ID/name list
 	session <- as.data.frame(billobject[["session"]], stringsAsFactors = FALSE)
@@ -31,7 +38,7 @@ legiBillMeta <- function(fileobject) {
 							description = "description", committee = "committee")
 
 	# Build the list containing all the single element values
-	billData <- lapply(singleValueList, FUN = function(singles){
+	billData <- plyr::llply(singleValueList, FUN = function(singles){
 		as.list(billobject[[singles]])
 	})
 
@@ -39,7 +46,7 @@ legiBillMeta <- function(fileobject) {
 	bdnames <- names(billData)
 
 	# Replace any NULL values with NA values
-	billData <- lapply(billData, FUN = function(rmNulls) {
+	billData <- plyr::llply(billData, FUN = function(rmNulls) {
 		if (length(rmNulls) == 0) rmNulls <- ""
 		else rmNulls <- rmNulls
 	}) %>% as.data.frame(stringsAsFactors = FALSE)
@@ -48,12 +55,13 @@ legiBillMeta <- function(fileobject) {
 	names(billData) <- bdnames
 
 	# Recast the date values as dates
-	billData$status_date <- ymd(billData$status_date)
+	billData$status_date <- lubridate::ymd(billData$status_date)
 
 	# Create bill metadata data frame object
-	billData <- cbind(session[1], as.data.frame(billData, stringsAsFactors = FALSE))
+	billData <- dplyr::bind_cols(session[1], as.data.frame(billData,
+											stringsAsFactors = FALSE))
 
 	# Return the bill meta data object
 	return(billData)
 
-}
+} # End of Function

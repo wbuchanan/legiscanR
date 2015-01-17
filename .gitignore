@@ -30,6 +30,7 @@ data/people
 data/peopleAttr
 data/recordVotesAttr
 data/votes
+R/legiTest.R
 
 # History files
 .Rhistory

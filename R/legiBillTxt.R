@@ -1,17 +1,24 @@
-##' @title Legiscan Bill Text Data
-##' @description Parses and arranges JSON output from
-##' Legiscan master data downloads bills subdirectory
-##' @param fileobject A JSON file object from the bills subdirectory
-##' @return Creates a list object containing a data frame
-##' for the progress of the bill
-##' @export
-##' @examples
-#' require(legiscanR)
+#' @title Legiscan Bill Text Data
+#' @description Parses and arranges JSON output from
+#' Legiscan master data downloads bills subdirectory
+#' @param fileobject A JSON file object from the bills subdirectory
+#' @return Creates a list object containing a data frame
+#' for the progress of the bill
+#' @examples \donttest{
+#' # Create directory object
 #' directoryTree <- fileStructure("data/msHistoricalJSON/")
+#'
+#' # Create file list object
 #' files <- fileLists(directoryTree)
-#' legalText <- legiBillTxt(files[["bills"]][[10]][[12]])
-
-# Function to parse/clean JSON output from LegiScan API calls
+#'
+#' # Parse/clean the full bill text data from a LegiScan bill file
+#' theBillText <- legiBillTxt(files[["bills"]][[10]][[12]])
+#' }
+#'
+#' @import RJSONIO httr XML lubridate plyr dplyr magrittr
+#' @export legiBillTxt
+#' @family Parsing and Cleaning LegiScan Data
+#' @name legiBillTxt
 legiBillTxt <- function(fileobject) {
 
 	# Parse the JSON object
@@ -22,9 +29,9 @@ legiBillTxt <- function(fileobject) {
 
 	# Add the ID columns to the data frames and fill the required
 	# number of records to rectangularize the data frame
-	billTxt <- as.data.frame(cbind(IDs[rep(seq_len(nrow(IDs)),
-											nrow(billobject[["texts"]])), ],
-									billobject[["texts"]]), stringsAsFactors = FALSE)
+	billTxt <- as.data.frame(dplyr::bind_cols(IDs[rep(seq_len(nrow(IDs)),
+							 nrow(billobject[["texts"]])), ],
+							 billobject[["texts"]]), stringsAsFactors = FALSE)
 
 	# Generate a list of all of the state link elements
 	linkLists <- as.list(billTxt$state_link)
@@ -33,17 +40,32 @@ legiBillTxt <- function(fileobject) {
 	names(linkLists) <- c(billobject[["bill_number"]], billobject[["bill_number"]])
 
 	# Retrieve, parse, and clean the text of the bills
-	cleanText <- lapply(linkLists, FUN = function(links) {
-		tryCatch(paste(xpathApply(htmlParse(links),
-								  "//p", xmlValue), collapse = "\n"),
-				 error = function(e) {
-				 	list(c("drop me"),
-				 		 c("Error loading the bill text"))
-				 })
+	cleanText <- plyr::llply(linkLists, FUN = function(links) {
+
+		# Test the HTTP response status from the URL
+		if (httr::http_status(httr::GET(links))$message == "success: (200) OK") {
+
+			# If valid URL parse the HTML (strip all paragraph tags)
+			paste(XML::xpathApply(XML::htmlParse(links),
+				"//p", XML::xmlValue), collapse = "\n")
+
+		} else {
+
+			# Print equivalent of "error" message to the object
+			list(c("drop me"), c("Error loading the bill text"))
+
+		}
+
+		#tryCatch(paste(xpathApply(htmlParse(links),
+		#						  "//p", xmlValue), collapse = "\n"),
+		#		 error = function(e) {
+		#		 	list(c("drop me"),
+		#		 		 c("Error loading the bill text"))
+		#		 })
 	})
 
 	# Create data table with the text data
-	fullText <- ldply(cleanText, rbind)
+	fullText <- plyr::ldply(cleanText, dplyr::bind_rows)
 
 	# Convert text back to character vector
 	fullText[, 2] <- toString(fullText[, 2])
@@ -55,7 +77,7 @@ legiBillTxt <- function(fileobject) {
 	fullText <- fullText[, 2]
 
 	# Add the full text of the bill to the other bill text data
-	billText <- as.data.frame(cbind(billTxt, full_bill_text = fullText),
+	billText <- as.data.frame(dplyr::bind_cols(billTxt, full_bill_text = fullText),
 							  stringsAsFactors = FALSE)
 
 	# Convert the text of the legislation back to string data
@@ -64,5 +86,4 @@ legiBillTxt <- function(fileobject) {
 	# Return the parsed/cleaned object
 	return(billText)
 
-# End of function call
-}
+} # End of Function
