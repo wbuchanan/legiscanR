@@ -15,7 +15,9 @@
 #' votes <- legiscanVotes(files[["votes"]])
 #' }
 #'
-#' @import RJSONIO lubridate dplyr
+#' @importFrom RJSONIO fromJSON
+#' @importFrom lubridate ymd
+#' @importFrom dplyr bind_cols
 #' @export legiVotesJSON
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiVotesJSON

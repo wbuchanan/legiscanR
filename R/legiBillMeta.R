@@ -15,7 +15,11 @@
 #' bills <- legiBillMeta(files[["bills"]][[1]][[1]])
 #' }
 #'
-#' @import RJSONIO lubridate plyr dplyr magrittr
+#' @importFrom RJSONIO fromJSON
+#' @importFrom lubridate ymd
+#' @importFrom plyr llply
+#' @importFrom dplyr bind_cols
+#' @importFrom magrittr %>%
 #' @export legiBillMeta
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillMeta

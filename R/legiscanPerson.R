@@ -16,7 +16,8 @@
 #' }
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiscanPerson
-#' @import XML plyr
+#' @importFrom XML xmlRoot xmlParse xmlToList
+#' @importFrom plyr llply
 #' @export legiscanPerson
 legiscanPerson <- function(file) {
 

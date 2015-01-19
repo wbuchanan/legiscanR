@@ -1,37 +1,3 @@
-# Files too large for recommended/allowable size on github
-data/billSpons
-data/billTxt2
-data/billProg2
-data/recordVotes
-data/billHist
-data/billProg
-data/billTxt
-data/billHist2
-data/billSpons2
-data/bills
-data/msHistoricalXML
-data/msHistoricalJSON
-data/allPeople
-data/billHistAttr
-data/billMeta
-data/billMeta2
-data/billMetaAttr
-data/billProgAttr
-data/billSponsAttr
-data/billTxtAttr
-data/billVotes
-data/billVotes2
-data/billVotesAttr
-data/dirTree
-data/files
-data/metaVotes
-data/metaVotesAttr
-data/people
-data/peopleAttr
-data/recordVotesAttr
-data/votes
-R/legiTest.R
-
 # History files
 .Rhistory
 .Rapp.history

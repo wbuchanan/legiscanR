@@ -15,7 +15,9 @@
 #' votes <- legiscanVotes(files[["votes"]])
 #' }
 #'
-#' @import XML lubridate dplyr
+#' @importFrom XML xmlRoot xmlParse xmlToList xmlToDataFrame
+#' @importFrom lubridate ymd
+#' @importFrom dplyr bind_cols
 #' @export legiscanVotes
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiscanVotes

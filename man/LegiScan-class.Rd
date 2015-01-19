@@ -4,43 +4,27 @@
 \name{LegiScan-class}
 \alias{LegiScan}
 \alias{LegiScan-class}
-\alias{initialize,LegiScan,character,character,character,...-method}
-\alias{initialize,LegiScan,missing,character,character,...-method}
-\alias{initialize,LegiScan,missing,character,missing,...-method}
-\alias{initialize,LegiScan,missing,missing,character,...-method}
-\alias{initialize,LegiScan,missing,missing,missing,...-method}
 \alias{initialize,LegiScan-method}
 \alias{legiscanR}
 \title{LegiScan API Class object}
 \usage{
-legiscanR(urlBase = "http://api.legiscan.com/?key=",
-  api = "ABCDEFGHIJKLMNOP", format = "JSON", ...)
+legiscanR(...)
 
-\S4method{initialize}{LegiScan}(.Object, urlBase = "missing",
-  api = "missing", format = "character", ...)
-
-\S4method{initialize}{LegiScan}(.Object, urlBase = "missing",
-  api = "missing", format = "character", ...)
-
-\S4method{initialize}{LegiScan}(.Object, urlBase = "missing",
-  api = "missing", format = "character", ...)
-
-\S4method{initialize}{LegiScan}(.Object, urlBase = "missing",
-  api = "missing", format = "character", ...)
-
-\S4method{initialize}{LegiScan}(.Object, urlBase = "missing",
-  api = "missing", format = "character", ...)
+\S4method{initialize}{LegiScan}(.Object, urlBase, api, format)
 }
 \arguments{
-\item{urlBase}{Character string identifying root URL for API request}
+\item{...}{Should be passed arguments named by the slot names from getSlots("LegiScan")}
 
-\item{api}{LegiScan API key}
+\item{.Object}{a LegiScan object to create}
 
-\item{format}{Character string indicating if requested data are in JSON or XML format}
+\item{urlBase}{Root URL for LegiScan API calls}
 
-\item{...}{Additional arguments (reserved for future use)}
+\item{api}{If specified, will search for matching file otherwise will treat as character string}
 
-\item{.Object}{Object of class LegiScan}
+\item{format}{XML or JSON API requests (set on the LegiScan website)}
+}
+\value{
+Returns the LegiScan object if the validation tests are passed
 }
 \description{
 Defines a LegiScan class object which is passed to methods
@@ -50,14 +34,6 @@ data retrieve from the LegiScan API
 LegiScan constructor function
 
 LegiScan default construction method
-
-LegiScan construction method for user specified format
-
-LegiScan construction method for user specified format
-
-LegiScan construction method with user specified api key value/path
-
-LegiScan construction method with user specified api and format values
 }
 \section{Slots}{
 
@@ -77,12 +53,6 @@ The file format returned by the LegiScan API is set up when logging
 into your LegiScan account.  The value provided by the class object is used
 to select the appropriate parsing methods based on the object returned
 from the API call
-
-The api value should either be the file path to the .legiscanAPI file
-or be the api key itself
-
-The api value should either be the file path to the .legiscanAPI file
-or be the api key itself
 }
 \examples{
 \donttest{

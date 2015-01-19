@@ -15,7 +15,8 @@
 #' aLegislator <- legiPersonJSON(files[["people"]][[10]][[12]])
 #' }
 #'
-#' @import RJSONIO magrittr
+#' @importFrom RJSONIO fromJSON
+#' @importFrom magrittr %>%
 #' @export legiPersonJSON
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiPersonJSON

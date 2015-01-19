@@ -18,7 +18,10 @@
 #' }
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiscanBill
-#' @import XML lubridate plyr dplyr
+#' @importFrom XML xmlRoot xmlParse xmlToList xmlApply xpathApply xmlValue htmlParse
+#' @importFrom lubridate ymd
+#' @importFrom plyr llply ldply
+#' @importFrom dplyr bind_cols bind_rows
 #' @export legiscanBill
 legiscanBill <- function(file) {
 
@@ -201,7 +204,7 @@ legiscanBill <- function(file) {
   } else {
 
     # Create NULL Texts object
-    texts <- as.data.frame(cbind(doc_id = NA, date = NA,
+    texts <- as.data.frame(dplyr::bind_cols(doc_id = NA, date = NA,
                                  type = NA, mime = NA, url = NA,
                                  state_link = NA))
   }

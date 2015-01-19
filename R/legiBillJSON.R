@@ -14,7 +14,11 @@
 #' # Parse/clean up the Bill data
 #' bills <- legiBillJSON(files[["bills"]][[1]][[1]])
 #' }
-#' @import RJSONIO lubridate plyr dplyr magrittr
+#' @importFrom RJSONIO fromJSON
+#' @importFrom lubridate ymd
+#' @importFrom plyr llply
+#' @importFrom dplyr bind_cols
+#' @importFrom magrittr %>%
 #' @export legiBillJSON
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillJSON

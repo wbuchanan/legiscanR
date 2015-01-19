@@ -10,6 +10,7 @@
 #' 	\item{"votes"}{list of full filepaths/names for all vote  XML/JSON files}
 #' 	}
 #' @export fileStructure
+#' @importFrom plyr llply
 #' @name fileStructure
 #' @rdname fileStructure-Archive_Structure
 #' @family Parsing and Cleaning LegiScan Data
@@ -41,11 +42,11 @@ fileStructure <- function(filepath) {
 	# ----------File Class
 	# ---------------File Path
 	# ---------------File Name
-	fileList <- lapply(names(sessionRoot), FUN = function(x){
+	fileList <- plyr::llply(names(sessionRoot), FUN = function(x){
 		# Store the file path/name in the object x which identifies the session
 		# Create a list object containing the file path and file name
 		# based on the file class type (e.g., bills, people, or voting)
-		x <- 	lapply(fileClass, FUN = function(y){
+		x <- 	plyr::llply(fileClass, FUN = function(y){
 					list(filePaths= paste0(sessionRoot[[x]], y),
 						 fileNames= list.files(path = paste0(sessionRoot[[x]], y)))
 				})

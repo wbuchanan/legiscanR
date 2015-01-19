@@ -11,7 +11,7 @@
 #' stateList(myLegiScan)
 #' }
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export stateList
 #' @rdname stateList-methods
 #' @aliases stateList,LegiScan-method
@@ -44,7 +44,7 @@ setMethod(f = "stateList",
 #' # Get the session list for Mississippi
 #' sessionList(myLegiScan, "MS")
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export sessionList
 #' @rdname sessionList-methods
 #' @aliases sessionList,LegiScan,character-method
@@ -89,7 +89,7 @@ setMethod(f = "sessionList",
 #' which LegiScan recommends, is to make master list requests using the state
 #' abbreviation.  However, a second method is available which will select the
 #' data based on the session id number assigned by LegiScan.
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export masterList
 #' @rdname masterList-methods
 #' @aliases masterList,LegiScan,character,NULL-method
@@ -123,7 +123,7 @@ setMethod(f = "masterList",
 #' session.  The response also provides a checksum for tracking changes to the
 #' text of bills, as well as bill_id and billnumber identifiers.
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export masterList
 #' @rdname masterList-methods
 #' @aliases masterList,LegiScan,NULL,NULL-method
@@ -165,7 +165,7 @@ setMethod(f = "masterList",
 #' Detailed data on specific bill including - but not limited to: sponsors,
 #' full text (doc_id) identifier, and voting records identifiers
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export bill
 #' @rdname bill-methods
 #' @aliases bill,LegiScan,numeric,NULL,NULL-method
@@ -207,7 +207,7 @@ setMethod(f = "bill",
 #' Detailed data on specific bill including - but not limited to: sponsors,
 #' full text (doc_id) identifier, and voting records identifiers
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export bill
 #' @rdname bill-methods
 #' @aliases bill,LegiScan,NULL,character,numeric-method
@@ -251,7 +251,7 @@ setMethod(f = "bill",
 #' Retrieves the full bill text, metadata (e.g., draft revision number, etc...),
 #' and MIME type for the text.  The text is encoded in base64.
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export billText
 #' @rdname billText-methods
 #' @aliases billText,LegiScan,numeric-method
@@ -291,7 +291,7 @@ setMethod(f = "billText",
 #' @title LegiScan Caller Methods - amendment
 #' @description Generic method for the LegiScan getAmendment API call
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export amendment
 #' @rdname amendment-methods
 #' @aliases amendment,LegiScan,numeric-method
@@ -331,7 +331,7 @@ setMethod(f = "amendment",
 #' @title LegiScan Caller Methods - supplement
 #' @description Generic method for the LegiScan getSupplement API call
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export supplement
 #' @rdname supplement-methods
 #' @aliases supplement,LegiScan,numeric-method
@@ -371,7 +371,7 @@ setMethod(f = "supplement",
 #' @title LegiScan Caller Methods - rollCall
 #' @description Generic method for the LegiScan getRollcall API call
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export rollCall
 #' @rdname rollCall-methods
 #' @aliases rollCall,LegiScan,numeric-method
@@ -411,7 +411,7 @@ setMethod(f = "rollCall",
 #' @title LegiScan Caller Methods - sponsor
 #' @description Generic method for the LegiScan sponsor API call
 #' @family LegiScan API Caller Methods
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export sponsor
 #' @rdname sponsor-methods
 #' @aliases sponsor,LegiScan,numeric-method
@@ -458,7 +458,7 @@ setMethod(f = "sponsor",
 #' 		\item{"year = 4"}{Prior Years of Data Available}
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method
@@ -512,7 +512,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year = 4"}{Prior Years of Data Available}
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,NULL,character,NULL,NULL-method
@@ -556,7 +556,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year = 4"}{Prior Years of Data Available}
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,NULL,character,numeric,NULL-method
@@ -604,7 +604,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year = 4"}{Prior Years of Data Available}
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,NULL,character,NULL,numeric-method
@@ -652,7 +652,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year = 4"}{Prior Years of Data Available}
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
-#' @import RCurl
+#' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,NULL,character,numeric,numeric-method

@@ -15,7 +15,13 @@
 #' theBillText <- legiBillTxt(files[["bills"]][[10]][[12]])
 #' }
 #'
-#' @import RJSONIO httr XML lubridate plyr dplyr magrittr
+#' @importFrom RJSONIO fromJSON
+#' @importFrom lubridate ymd
+#' @importFrom plyr llply ldply
+#' @importFrom dplyr bind_cols bind_rows
+#' @importFrom magrittr %>%
+#' @importFrom httr http_status GET
+#' @importFrom XML htmlParse xmlValue xpathApply
 #' @export legiBillTxt
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillTxt
