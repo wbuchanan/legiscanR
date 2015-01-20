@@ -17,4 +17,11 @@ The legiscanR option can be set permanently in your R profile, or can be set int
 
 option(legiscanR = "ABCD1234EFGHIJK78910")
 
+### Additional info
 
+While trying to work out issues with the installation process, you may need to use:
+
+install.packages(c('XML', 'RJSONIO', 'httr', 'dplyr', 'plyr', 'magrittr', 'lubridate', 'RCurl'), dep = TRUE, repo = "http://cran.rstudio.com")
+devtools::install_github('wbuchanan/legiscanR', dependencies = FALSE) 
+
+I have been running [Revolution R Open](http://mran.revolutionanalytics.com), which specifies a different CRAN repository based on a snapshot taken on a single date.  Installing the packages from an active CRAN repository first and setting the install_github function to not install the dependencies may be the easiest way around this for now.
