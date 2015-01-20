@@ -37,6 +37,5 @@ Collate: 	'legiscan-class.R'
 			'xjformat.R'
 			'legiscanR.R'
 			'makeDB.R'
-Depends: methods,
 Imports: RCurl, httr, lubridate, plyr, dplyr (>= 0.4.0), magrittr, RJSONIO, XML
 Suggests: doMC, NLP, tm
