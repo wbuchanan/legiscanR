@@ -1,4 +1,5 @@
 legiscanR 0.0.1
 --------------------------------------------------------------------------
-
+* 22jan2015 Started adding first attempts at parser helper functions and 
+methods for the API calls.
 * News file will be updated once a full beta is prepared for release

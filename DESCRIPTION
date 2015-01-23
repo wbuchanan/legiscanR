@@ -16,6 +16,8 @@ Collate: 	'legiscan-class.R'
 			'accessor-methods.R'
 			'caller-methods.R'
 			'constructor-methods.R'
+			'parser-generics.R'
+			'parser-methods.R'
 			'billdata.R'
 			'billids.R'
 			'checkPage.R'
@@ -36,6 +38,8 @@ Collate: 	'legiscan-class.R'
 			'legiVotesJSON.R'
 			'xjformat.R'
 			'legiscanR.R'
+			'getFullText.R'
 			'makeDB.R'
-Imports: RCurl, httr, lubridate, plyr, dplyr (>= 0.4.0), magrittr, RJSONIO, XML
+			'helperFunctions.R'
+Imports: methods, RCurl, httr, lubridate, plyr, dplyr (>= 0.4.0), magrittr, RJSONIO, XML
 Suggests: doMC, NLP, tm

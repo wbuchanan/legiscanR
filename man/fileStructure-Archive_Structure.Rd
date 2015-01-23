@@ -34,10 +34,11 @@ directoryTree <- fileStructure("data/msHistorical/")
 Other Legiscan Data Downloads: \code{\link{fileLists}}
 
 Other Parsing and Cleaning LegiScan Data: \code{\link{billids}};
-  \code{\link{fileLists}}; \code{\link{legiBillHist}};
-  \code{\link{legiBillJSON}}; \code{\link{legiBillMeta}};
-  \code{\link{legiBillProg}}; \code{\link{legiBillSpons}};
-  \code{\link{legiBillTxt}}; \code{\link{legiPersonJSON}};
+  \code{\link{fileLists}}; \code{\link{getFullText}};
+  \code{\link{legiBillHist}}; \code{\link{legiBillJSON}};
+  \code{\link{legiBillMeta}}; \code{\link{legiBillProg}};
+  \code{\link{legiBillSpons}}; \code{\link{legiBillTxt}};
+  \code{\link{legiPersonJSON}};
   \code{\link{legiVotesJSON}}; \code{\link{legiscanBill}};
   \code{\link{legiscanPerson}};
   \code{\link{legiscanVotes}}; \code{\link{xjformat}}

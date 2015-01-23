@@ -92,9 +92,9 @@ setMethod(f = "sessionList",
 #' @importFrom RCurl getURL
 #' @export masterList
 #' @rdname masterList-methods
-#' @aliases masterList,LegiScan,character,NULL-method
+#' @aliases masterList,LegiScan,character,missing-method
 setMethod(f = "masterList",
-		  signature = c("LegiScan", "character", "NULL"),
+		  signature = c("LegiScan", "character", "missing"),
 		  definition = function(legiscan, state, id) {
 
 	  		# Validate the value of the State variable
@@ -126,9 +126,9 @@ setMethod(f = "masterList",
 #' @importFrom RCurl getURL
 #' @export masterList
 #' @rdname masterList-methods
-#' @aliases masterList,LegiScan,NULL,NULL-method
+#' @aliases masterList,LegiScan,missing,missing-method
 setMethod(f = "masterList",
-		  signature = c("LegiScan", "NULL", "NULL"),
+		  signature = c("LegiScan", "missing", "missing"),
 		  definition = function(legiscan, state, id) {
 
 		  	# Validate class of id variable
@@ -168,10 +168,10 @@ setMethod(f = "masterList",
 #' @importFrom RCurl getURL
 #' @export bill
 #' @rdname bill-methods
-#' @aliases bill,LegiScan,numeric,NULL,NULL-method
+#' @aliases bill,LegiScan,numeric,missing,missing-method
 setMethod(f = "bill",
-		  signature("LegiScan", "numeric", "NULL", "NULL"),
-		  definition = function(legiscan, id, state = "missing", billnumber = "missing") {
+		  signature("LegiScan", "numeric", "missing", "missing"),
+		  definition = function(legiscan, id, state, billnumber) {
 
 		  	# Validate the class of the id object
 		  	if (!is.numeric(id)) {
@@ -210,10 +210,10 @@ setMethod(f = "bill",
 #' @importFrom RCurl getURL
 #' @export bill
 #' @rdname bill-methods
-#' @aliases bill,LegiScan,NULL,character,numeric-method
+#' @aliases bill,LegiScan,missing,character,numeric-method
 setMethod(f = "bill",
-		  signature("LegiScan", "NULL", "character", "numeric"),
-		  definition = function(legiscan, id = NULL, state, billnumber) {
+		  signature("LegiScan", "missing", "character", "numeric"),
+		  definition = function(legiscan, id, state, billnumber) {
 
 		  	# Validate value of id parameter
 		  	if (!is.numeric(id)) {
@@ -461,12 +461,11 @@ setMethod(f = "sponsor",
 #' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
-#' @aliases legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method
+#' @aliases legisearch,LegiScan,character,numeric,missing,missing,missing-method
 setMethod(f = "legisearch",
 		  signature("LegiScan", "character", "numeric",
-		  		  "NULL", "NULL", "NULL"),
-		  definition = function(legiscan, state, bill,
-		  					  query = NULL, year = NULL, page = NULL) {
+		  		  "missing", "missing", "missing"),
+		  definition = function(legiscan, state, bill, query, year, page) {
 
 		  	# Validate class of the bill parameter
 		  	if (!is.numeric(bill)) {
@@ -515,12 +514,11 @@ setMethod(f = "legisearch",
 #' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
-#' @aliases legisearch,LegiScan,character,NULL,character,NULL,NULL-method
+#' @aliases legisearch,LegiScan,character,missing,character,missing,missing-method
 setMethod(f = "legisearch",
-		  signature("LegiScan", "character", "NULL",
-		  		  "character", "NULL", "NULL"),
-		  definition = function(legiscan, state, bill = NULL,
-		  					  query, year = NULL, page = NULL) {
+		  signature("LegiScan", "character", "missing",
+		  		  "character", "missing", "missing"),
+		  definition = function(legiscan, state, bill, query, year, page) {
 
 		  	# Validate the value of the State variable
 		  	state <- checkState(state)
@@ -559,12 +557,11 @@ setMethod(f = "legisearch",
 #' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
-#' @aliases legisearch,LegiScan,character,NULL,character,numeric,NULL-method
+#' @aliases legisearch,LegiScan,character,missing,character,numeric,missing-method
 setMethod(f = "legisearch",
-		  signature("LegiScan", "character", "NULL",
-		  		  "character", "numeric", "NULL"),
-		  definition = function(legiscan, state, bill = NULL,
-		  					  query, year, page = NULL) {
+		  signature("LegiScan", "character", "missing",
+		  		  "character", "numeric", "missing"),
+		  definition = function(legiscan, state, bill, query, year, page) {
 
 		  	# Validate the value of the State variable
 		  	state <- checkState(state)
@@ -607,12 +604,11 @@ setMethod(f = "legisearch",
 #' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
-#' @aliases legisearch,LegiScan,character,NULL,character,NULL,numeric-method
+#' @aliases legisearch,LegiScan,character,missing,character,missing,numeric-method
 setMethod(f = "legisearch",
-		  signature("LegiScan", "character", "NULL",
-		  		  "character", "NULL", "numeric"),
-		  definition = function(legiscan, state, bill = NULL,
-		  					  query, year = NULL, page) {
+		  signature("LegiScan", "character", "missing",
+		  		  "character", "missing", "numeric"),
+		  definition = function(legiscan, state, bill, query, year, page) {
 
 		  	# Validate the value of the State variable
 		  	state <- checkState(state)
@@ -655,17 +651,15 @@ setMethod(f = "legisearch",
 #' @importFrom RCurl getURL
 #' @export legisearch
 #' @rdname legisearch-methods
-#' @aliases legisearch,LegiScan,character,NULL,character,numeric,numeric-method
+#' @aliases legisearch,LegiScan,character,missing,character,numeric,numeric-method
 setMethod(f = "legisearch",
 
 		  # Signature for case where all parameters except the bill number are
 		  # non-null
-		  signature("LegiScan", "character", "NULL",
-		  		  "character", "numeric", "numeric"),
+		  signature("LegiScan", "character", "missing", "character", "numeric", "numeric"),
 
 		  # Define the function
-		  definition = function(legiscan, state, bill = NULL,
-		  					  query, year, page) {
+		  definition = function(legiscan, state, bill, query, year, page) {
 
 	  		# Validate the value of the State variable
 	  		state <- checkState(state)
