@@ -16,7 +16,7 @@
 #' billSponsors <- legiBillSpons(files[["bills"]][[10]][[12]])
 #' }
 #'
-#' @import RJSONIO lubridate plyr dplyr magrittr
+#' @importFrom dplyr bind_cols
 #' @export legiBillSpons
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillSpons

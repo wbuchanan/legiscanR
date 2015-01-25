@@ -2,18 +2,18 @@
 % Please edit documentation in R/billids.R
 \name{billids}
 \alias{billids}
-\title{Page validation}
+\title{Bill Ids from LegiScan Bill API Requests}
 \usage{
 billids(billobject)
 }
 \arguments{
-\item{billobject}{The page value passed from the legiscan function}
+\item{billobject}{A file/API request to the bill data}
 }
 \value{
-Returns a valid page object for inclusion in the URL specification
+Returns a data.frame object of ID elements for LegiScan Bill data
 }
 \description{
-Checks for valid values of page parameter for search method
+Generates a data.frame object of ID elements for LegiScan Bill data
 }
 \examples{
 \dontrun{
@@ -24,10 +24,11 @@ billobject_cleaner <- billids(billobject_raw)
 }
 \seealso{
 Other Parsing and Cleaning LegiScan Data: \code{\link{fileLists}};
-  \code{\link{fileStructure}}; \code{\link{legiBillHist}};
-  \code{\link{legiBillJSON}}; \code{\link{legiBillMeta}};
-  \code{\link{legiBillProg}}; \code{\link{legiBillSpons}};
-  \code{\link{legiBillTxt}}; \code{\link{legiPersonJSON}};
+  \code{\link{fileStructure}}; \code{\link{getFullText}};
+  \code{\link{legiBillHist}}; \code{\link{legiBillJSON}};
+  \code{\link{legiBillMeta}}; \code{\link{legiBillProg}};
+  \code{\link{legiBillSpons}}; \code{\link{legiBillTxt}};
+  \code{\link{legiPersonJSON}};
   \code{\link{legiVotesJSON}}; \code{\link{legiscanBill}};
   \code{\link{legiscanPerson}};
   \code{\link{legiscanVotes}}; \code{\link{xjformat}}

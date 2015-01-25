@@ -32,9 +32,10 @@ bills <- legiBillJSON(files[["bills"]][[1]][[1]])
 \seealso{
 Other Parsing and Cleaning LegiScan Data: \code{\link{billids}};
   \code{\link{fileLists}}; \code{\link{fileStructure}};
-  \code{\link{legiBillHist}}; \code{\link{legiBillMeta}};
-  \code{\link{legiBillProg}}; \code{\link{legiBillSpons}};
-  \code{\link{legiBillTxt}}; \code{\link{legiPersonJSON}};
+  \code{\link{getFullText}}; \code{\link{legiBillHist}};
+  \code{\link{legiBillMeta}}; \code{\link{legiBillProg}};
+  \code{\link{legiBillSpons}}; \code{\link{legiBillTxt}};
+  \code{\link{legiPersonJSON}};
   \code{\link{legiVotesJSON}}; \code{\link{legiscanBill}};
   \code{\link{legiscanPerson}};
   \code{\link{legiscanVotes}}; \code{\link{xjformat}}

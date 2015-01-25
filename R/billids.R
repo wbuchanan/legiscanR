@@ -1,14 +1,15 @@
-#' @title Page validation
-#' @description Checks for valid values of page parameter for search method
-#' @param billobject The page value passed from the legiscan function
-#' @return Returns a valid page object for inclusion in the URL specification
+#' @title Bill Ids from LegiScan Bill API Requests
+#' @description Generates a data.frame object of ID elements for LegiScan Bill data
+#' @param billobject A file/API request to the bill data
+#' @return Returns a data.frame object of ID elements for LegiScan Bill data
 #' @examples \dontrun{
 #' # Pass an unprocessed/cleaned bill object to billids to clean up the
 #' # identifiers in the API response
 #' billobject_cleaner <- billids(billobject_raw)
 #' }
 #' @family Parsing and Cleaning LegiScan Data
-#' @import plyr magrittr
+#' @importFrom plyr llply
+#' @importFrom magrittr %>%
 #' @name billids
 billids <- function(billobject) {
 

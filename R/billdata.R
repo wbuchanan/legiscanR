@@ -1,3 +1,5 @@
+#' @importFrom RJSONIO fromJSON
+#' @importFrom XML xmlRoot xmlParse
 # Function to parse bill data used by LegiScan bill parsers
 billdata <- function(fileobject, JSON = TRUE) {
 

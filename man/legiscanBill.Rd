@@ -2,12 +2,15 @@
 % Please edit documentation in R/legiscanBill.R
 \name{legiscanBill}
 \alias{legiscanBill}
-\title{Legiscan Bill Data}
+\title{LegiScan Archival Bill Data}
 \usage{
-legiscanBill(file)
+legiscanBill(rawBill, fullText = c("state_link", "url"))
 }
 \arguments{
-\item{file}{An XML file object from the bill subdirectory of the master download}
+\item{rawBill}{An XML file object from the bill subdirectory of the master download}
+
+\item{fullText}{A character vector identifying where to retrieve the full text of the
+bills (e.g., LegiScan site 'url' or official sites 'state_link')}
 }
 \value{
 Creates a list object containing a several data.frame objects.
@@ -15,8 +18,8 @@ The objects include the bill's meta data, status, history, text, and
 vote histories.
 }
 \description{
-Parses and arranges XML output from
-Legiscan master data dumps vote subdirectory
+Parses and arranges XML output from LegiScan master data downloads and stores the
+results in a list of data frames.
 }
 \examples{
 \donttest{
@@ -28,15 +31,28 @@ files <- fileLists(directoryTree)
 
 # Pass the function a bill object for processing
 bills <- legiscanBill(files[["bills"]][[1]][[1]])
+
+# When working with archive files, the process is fairly computationally intense due to
+# the large volume of I/O operations.  However, this is a process that may only need to be
+# run on an annual/semi-annual basis as a means of building data to load into a data warehouse.
+# To parse the entire archive you can do:
+library(doMC)
+registerDoMC(cores = 8)
+bills <- list()
+for (i in names(files[["bills"]])) {
+		# Builds a large list of data frame objects
+		bills[[i]] <- plyr::llply(files[["bills"]][[i]], legiscanBill, .parallel = TRUE)
+}
+
 }
 }
 \seealso{
 Other Parsing and Cleaning LegiScan Data: \code{\link{billids}};
   \code{\link{fileLists}}; \code{\link{fileStructure}};
-  \code{\link{legiBillHist}}; \code{\link{legiBillJSON}};
-  \code{\link{legiBillMeta}}; \code{\link{legiBillProg}};
-  \code{\link{legiBillSpons}}; \code{\link{legiBillTxt}};
-  \code{\link{legiPersonJSON}};
+  \code{\link{getFullText}}; \code{\link{legiBillHist}};
+  \code{\link{legiBillJSON}}; \code{\link{legiBillMeta}};
+  \code{\link{legiBillProg}}; \code{\link{legiBillSpons}};
+  \code{\link{legiBillTxt}}; \code{\link{legiPersonJSON}};
   \code{\link{legiVotesJSON}};
   \code{\link{legiscanPerson}};
   \code{\link{legiscanVotes}}; \code{\link{xjformat}}

@@ -16,29 +16,35 @@
 #' }
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiscanPerson
-#' @import XML plyr
+#' @importFrom XML xmlRoot xmlParse xmlToList
+#' @importFrom plyr llply
+#' @importFrom dplyr as_data_frame bind_cols
+#' @importFrom lubridate now
 #' @export legiscanPerson
 legiscanPerson <- function(file) {
+	
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now()) %>% dplyr::as_data_frame()
+	names(parseTime) <- "parse_timestamp"
 
 	# Parse XML Tree
-	xmlobject <- XML::xmlRoot(XML::xmlParse(file))
+	xmlobject <- XML::xmlRoot(XML::xmlParse(file))[["person"]]
 
 	# Initial parsing of the data object
-	initialPerson <- XML::xmlToList(xmlobject[["person"]])
-
-	# Need to replace NULL values with NA for consistency in the data storage
-	withOutNulls <- plyr::llply(initialPerson, FUN = function(cleanNulls) {
-
-		# If value is null replace it with generic missing value
-		if (is.null(cleanNulls)) cleanNulls <- NA
-
-		# If there is currently a value in that slot retain it
-		else cleanNulls <- cleanNulls
-
-	})
-
-	# Create the data frame row for the person
-	finalPerson <- as.data.frame(withOutNulls, stringsAsFactors = FALSE)
+	finalPerson <- XML::xmlToList(xmlobject) %>%
+		  				plyr::llply(.fun = function(x) {
+		  					ifelse(is.null(x), NA, x)
+		  				}) %>% dplyr::as_data_frame() 
+	
+	finalPerson <- dplyr::bind_cols(finalPerson, parseTime)
+	
+	# Correct casting of variables
+	correctCasting <- list(people_id = "people_id", role_id = "role_id", 
+						   ftm_id = "ftm_id", committee_id = "committee_id", 
+						   party_id = "party_id", ftm_eid = "ftm_eid")
+	for (i in correctCasting) {
+		finalPerson[, i] <- as.numeric(finalPerson[, i])
+	}
 
 	# Return the cleaned/formatted object
 	return(finalPerson)

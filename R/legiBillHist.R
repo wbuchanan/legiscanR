@@ -15,7 +15,7 @@
 #' history <- legiBillHist(files[["bills"]][[10]][[12]])
 #' }
 #' @export legiBillHist
-#' @import RJSONIO
+#' @importFrom dplyr bind_cols
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillHist
 legiBillHist <- function(fileobject) {

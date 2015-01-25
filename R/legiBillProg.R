@@ -15,7 +15,7 @@
 #' billProgress <- legiBillProg(files[["bills"]][[10]][[12]])
 #' }
 #'
-#' @import dplyr
+#' @importFrom dplyr bind_cols
 #' @export legiBillProg
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiBillProg

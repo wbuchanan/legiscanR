@@ -17,10 +17,12 @@ xjformat <- function(x) {
 
 	# If the file includes the XML signature add the XMLDocumentContent class
 	# to it for work with the XML package
-	if (grepl("(<?xml.*)", x)) class(x) <- c("XMLDocumentContent", "character")
+	if (grepl("<?xml.*", x)) class(x) <- c("XMLDocumentContent", "character")
 
 	# Else treat as text
 	else class(x) <- "character"
+
+
 
 	# Return the object with the class modification(s)
 	return(x)

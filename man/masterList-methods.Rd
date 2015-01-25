@@ -3,15 +3,15 @@
 \docType{methods}
 \name{masterList}
 \alias{masterList}
-\alias{masterList,LegiScan,NULL,NULL-method}
-\alias{masterList,LegiScan,character,NULL-method}
+\alias{masterList,LegiScan,character,missing-method}
+\alias{masterList,LegiScan,missing,missing-method}
 \title{LegiScan Caller Methods - masterList}
 \usage{
 masterList(legiscan, state, id)
 
-\S4method{masterList}{LegiScan,character,`NULL`}(legiscan, state, id)
+\S4method{masterList}{LegiScan,character,missing}(legiscan, state, id)
 
-\S4method{masterList}{LegiScan,`NULL`,`NULL`}(legiscan, state, id)
+\S4method{masterList}{LegiScan,missing,missing}(legiscan, state, id)
 }
 \arguments{
 \item{legiscan}{An object of class LegiScan}
@@ -53,14 +53,14 @@ Other LegiScan API Caller Generics: \code{\link{amendment}},
   \code{\link{billText}},
   \code{\link{billText,LegiScan,numeric-method}};
   \code{\link{bill}},
-  \code{\link{bill,LegiScan,NULL,character,numeric-method}},
-  \code{\link{bill,LegiScan,numeric,NULL,NULL-method}};
+  \code{\link{bill,LegiScan,missing,character,numeric-method}},
+  \code{\link{bill,LegiScan,numeric,missing,missing-method}};
   \code{\link{legisearch}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method}};
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,numeric,missing,missing,missing-method}};
   \code{\link{rollCall}},
   \code{\link{rollCall,LegiScan,numeric-method}};
   \code{\link{sessionList}},
@@ -77,14 +77,14 @@ Other LegiScan API Caller Methods: \code{\link{amendment}},
   \code{\link{billText}},
   \code{\link{billText,LegiScan,numeric-method}};
   \code{\link{bill}},
-  \code{\link{bill,LegiScan,NULL,character,numeric-method}},
-  \code{\link{bill,LegiScan,numeric,NULL,NULL-method}};
+  \code{\link{bill,LegiScan,missing,character,numeric-method}},
+  \code{\link{bill,LegiScan,numeric,missing,missing-method}};
   \code{\link{legisearch}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method}};
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,numeric,missing,missing,missing-method}};
   \code{\link{rollCall}},
   \code{\link{rollCall,LegiScan,numeric-method}};
   \code{\link{sessionList}},
@@ -101,14 +101,14 @@ Other LegiScan API Caller Methods: \code{\link{amendment}},
   \code{\link{billText}},
   \code{\link{billText,LegiScan,numeric-method}};
   \code{\link{bill}},
-  \code{\link{bill,LegiScan,NULL,character,numeric-method}},
-  \code{\link{bill,LegiScan,numeric,NULL,NULL-method}};
+  \code{\link{bill,LegiScan,missing,character,numeric-method}},
+  \code{\link{bill,LegiScan,numeric,missing,missing-method}};
   \code{\link{legisearch}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,NULL,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,NULL-method}},
-  \code{\link{legisearch,LegiScan,character,NULL,character,numeric,numeric-method}},
-  \code{\link{legisearch,LegiScan,character,numeric,NULL,NULL,NULL-method}};
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,missing,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,missing-method}},
+  \code{\link{legisearch,LegiScan,character,missing,character,numeric,numeric-method}},
+  \code{\link{legisearch,LegiScan,character,numeric,missing,missing,missing-method}};
   \code{\link{rollCall}},
   \code{\link{rollCall,LegiScan,numeric-method}};
   \code{\link{sessionList}},

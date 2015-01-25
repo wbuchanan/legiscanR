@@ -32,9 +32,10 @@ billSponsors <- legiBillSpons(files[["bills"]][[10]][[12]])
 \seealso{
 Other Parsing and Cleaning LegiScan Data: \code{\link{billids}};
   \code{\link{fileLists}}; \code{\link{fileStructure}};
-  \code{\link{legiBillHist}}; \code{\link{legiBillJSON}};
-  \code{\link{legiBillMeta}}; \code{\link{legiBillProg}};
-  \code{\link{legiBillTxt}}; \code{\link{legiPersonJSON}};
+  \code{\link{getFullText}}; \code{\link{legiBillHist}};
+  \code{\link{legiBillJSON}}; \code{\link{legiBillMeta}};
+  \code{\link{legiBillProg}}; \code{\link{legiBillTxt}};
+  \code{\link{legiPersonJSON}};
   \code{\link{legiVotesJSON}}; \code{\link{legiscanBill}};
   \code{\link{legiscanPerson}};
   \code{\link{legiscanVotes}}; \code{\link{xjformat}}
