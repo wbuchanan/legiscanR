@@ -1,8 +1,10 @@
-#' @title Legiscan Bill Data
+#' @title LegiScan Archival Bill Data
 #' @description
-#' Parses and arranges XML output from
-#' Legiscan master data dumps vote subdirectory
-#' @param file An XML file object from the bill subdirectory of the master download
+#' Parses and arranges XML output from LegiScan master data downloads and stores the
+#' results in a list of data frames.
+#' @param rawBill An XML file object from the bill subdirectory of the master download
+#' @param fullText A character vector identifying where to retrieve the full text of the
+#' bills (e.g., LegiScan site 'url' or official sites 'state_link')
 #' @return Creates a list object containing a several data.frame objects.
 #' The objects include the bill's meta data, status, history, text, and
 #' vote histories.
@@ -15,261 +17,227 @@
 #'
 #' # Pass the function a bill object for processing
 #' bills <- legiscanBill(files[["bills"]][[1]][[1]])
+#'
+#' # When working with archive files, the process is fairly computationally intense due to
+#' # the large volume of I/O operations.  However, this is a process that may only need to be
+#' # run on an annual/semi-annual basis as a means of building data to load into a data warehouse.
+#' # To parse the entire archive you can do:
+#' library(doMC)
+#' registerDoMC(cores = 8)
+#' bills <- list()
+#' for (i in names(files[["bills"]])) {
+#' 		# Builds a large list of data frame objects
+#' 		bills[[i]] <- plyr::llply(files[["bills"]][[i]], legiscanBill, .parallel = TRUE)
+#' }
+#'
 #' }
 #' @family Parsing and Cleaning LegiScan Data
 #' @name legiscanBill
 #' @importFrom XML xmlRoot xmlParse xmlToList xmlApply xpathApply xmlValue htmlParse
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @importFrom plyr llply ldply
-#' @importFrom dplyr bind_cols bind_rows
+#' @importFrom dplyr bind_cols bind_rows as_data_frame full_join
+#' @importFrom httr http_status GET
 #' @export legiscanBill
-legiscanBill <- function(file) {
+legiscanBill <- function(rawBill, fullText = c("state_link", "url")) {
 
-  # Need to make sure the XML and lubridate libraries are loaded
-  # when function is called
-  # may move these to be loaded when the package is loaded
-  # require(XML); require(lubridate); require(plyr); require(dplyr)
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now()) %>% dplyr::as_data_frame()
+	names(parseTime) <- "parse_timestamp"
 
-  # Create a bill object with the parsed XML content
-  bill <- XML::xmlRoot(XML::xmlParse(file))
+	# Create a parsed bill object
+  	billobject <- XML::xmlRoot(XML::xmlParse(rawBill))[["bill"]]
 
-  # Extract the bill elements from the bill object to be further processed
-  billobject <- bill[["bill"]]
+  	# Parse the XML into a List object and replace higher level
+  	# NULL values with NA
+  	billData <- XML::xmlToList(billobject) %>%
+	  				plyr::llply(.fun = function(x) {
+	  					ifelse(is.null(x), NA, x)
+	  				})
 
-  # Create the session ID/name list
-  session <- as.data.frame(XML::xmlToList(billobject[["session"]]),
-                           stringsAsFactors = FALSE)
+  	# Object storing names of metadata elements
+  	meta <- list(bill_id = "bill_id", change_hash = "change_hash",
+  				status_date = "status_date", state_id = "state_id",
+  				state = "state", bill_number = "bill_number",
+  				url = "url", state_link = "state_link",
+  				completed = "completed", status = "status",
+  				bill_type = "bill_type", body = "body",
+  				body_id = "body_id", current_body = "current_body",
+  				current_body_id = "current_body_id", title = "title",
+  				description = "description", committee = "committee")
 
-  # Define named list with all of the single element values
-  singleValueList <- list(bill_id = "bill_id", change_hash = "change_hash",
-  						url = "url", state_link = "state_link",
-  						completed = "completed", status = "status",
-  						status_date = "status_date", state = "state",
-  						state_id = "state_id", bill_number = "bill_number",
-  						bill_type = "bill_type", body = "body",
-  						body_id = "body_id", current_body = "current_body",
-  						current_body_id = "current_body_id", title = "title",
-  						description = "description", committee = "committee")
+  	# Pull out a meta data record that will also provide the
+  	# ID data for subsequent objects
+  	billMeta <- as_data_frame(billData[unlist(meta)])
 
-  # Build the list containing all the single element values
-  billData <- plyr::llply(singleValueList, FUN = function(singles){
-  	XML::xmlToList(billobject[[singles]])
-  })
+  	# Adjust casting of the date value so it will be pushed into
+  	# subsequent data frame objects
+  	billMeta$status_date <- lubridate::ymd(billMeta$status_date)
+  	billMeta$bill_id <- as.numeric(billMeta$bill_id)
+  	billMeta$state_id <- as.numeric(billMeta$state_id)
+  	billMeta$completed <- as.numeric(billMeta$completed)
+  	billMeta$status <- as.numeric(billMeta$status)
+  	billMeta$body_id <- as.numeric(billMeta$body_id)
+  	billMeta$current_body_id <- as.numeric(billMeta$current_body_id)
 
-  # Replace any NULL values with blank character strings
-  billData <- plyr::llply(billData, FUN = function(rmNulls) {
-    if (is.null(rmNulls)) rmNulls <- ""
-    else rmNulls <- rmNulls
-  })
+  	# Create a vector  of Bill ID data
+  	billID <- billMeta[c(1:6)]
 
-  # Recast the date values as dates
-  billData$status_date <- lubridate::ymd(billData$status_date)
+	billMeta <- dplyr::bind_cols(billMeta, parseTime[rep(seq_len(1),
+			nrow(billMeta)), ])
+	theData <- list(billMeta = billMeta)
 
-  # Create bill metadata data frame object
-  billData <- dplyr::bind_cols(session[1], as.data.frame(billData, stringsAsFactors = FALSE))
+	if (!is.null(billobject[["sponsors"]])) {
 
-  # Create the bill history object (contains multiple lists)
-  history <- XML::xmlApply(billobject[["history"]], XML::xmlToList)
-#                      FUN = function(x){
-#                        list(
-#                          date = ymd(xmlValue(x[["date"]])),
-#                          action = xmlValue(x[["action"]]),
-#                          chamber = xmlValue(x[["chamber"]]),
-#                          chamber_id = xmlValue(x[["chamber_id"]]),
-#                          importance = xmlValue(x[["importance"]])
-#                        )
-#
-#                      }
-#  )
+	  	# Build data frame objects for the bill sponsors,
+	  	# history, progress, committees, and texts
+		sponsors <- XML::xmlApply(billobject[["sponsors"]], XML::xmlToList) %>%
+						plyr::llply(.fun = function(x) {
+							plyr::llply(x, .fun = function(y) {
+								ifelse(is.null(y), NA, y)
+							}) %>%
+							dplyr::as_data_frame()
+						}) %>% dplyr::bind_rows()
 
-  # ID References for history table
-  historyIDs <- dplyr::bind_cols(billData[c(1, 2, 11, 10)])
+  	  	sponsors <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+			  				nrow(sponsors)), ], sponsors,
+							parseTime[rep(seq_len(1), nrow(sponsors)), ])
 
-  # Convert the history object to a data frame and prevent
-  # NULL values from causing problems
-  history <- dplyr::bind_rows(plyr::llply(history, function(f) {
-    as.data.frame(Filter(Negate(is.null), f), stringsAsFactors = FALSE)
-  }))
+	  	sponsorIDs <- list("people_id", "role_id", "ftm_id",
+  			  "sponsor_type_id", "sponsor_order")
+		for (x in sponsorIDs) {
+	  		sponsors[[x]] <- as.numeric(sponsors[[x]])
+		}
 
-  # Replicate the number of rows of history IDs needed to file the history data frame
-  historyIDs <- historyIDs[rep(seq_len(nrow(historyIDs)), nrow(history)), ]
+	  	theData[["sponsors"]] <- sponsors
 
-  # Add ID references to bill history dataframe
-  history <- dplyr::bind_cols(historyIDs, history)
+	} else {
+		sponsors <- NULL
+	}
+	if (!is.null(billobject[["history"]])) {
+		history <-  XML::xmlApply(billobject[["history"]], XML::xmlToList) %>%
+					plyr::llply(.fun = function(x) {
+						plyr::llply(x, .fun = function(y) {
+							ifelse(is.null(y), NA, y)
+						}) %>%
+						dplyr::as_data_frame()
+					}) %>% dplyr::bind_rows()
 
-  # Create the bill progress object (contains multiple lists)
-  progress <- XML::xmlApply(billobject[["progress"]], XML::xmlToList)
-#                       FUN = function(x){
-#                         list(
-#                           date = ymd(xmlValue(x[["date"]])),
-#                           event = xmlValue(x[["event"]])
-#                         )
-#                       }
-#  )
+  	  	history <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  					nrow(history)), ], history,
+    					parseTime[rep(seq_len(1), nrow(history)), ])
 
-  # Convert the bill progress object to a data frame and
-  # prevent NULL values from causing problems
-  progress <- dplyr::bind_rows(plyr::llply(progress, function(f) {
-    as.data.frame(Filter(Negate(is.null), f), stringsAsFactors = FALSE)
-  }))
+	  	history$date <- lubridate::ymd(history$date)
+	  	history$chamber_id <- as.numeric(history$chamber_id)
+	  	history$importance <- as.numeric(history$importance)
 
-  # ID References for progress table
-  progressIDs <- as.data.frame(billData[c(1, 2, 11, 10)], stringsAsFactors = FALSE)
+		theData[["history"]] <- history
 
-  # Replicate the number of rows of progress IDs needed to file the progress data frame
-  progressIDs <- progressIDs[rep(seq_len(nrow(progressIDs)), nrow(progress)), ]
+	} else {
+		history <- NULL
+	}
+	if (!is.null(billobject[["committees"]])) {
 
-  # Add ID references to progress object
-  progress <- dplyr::bind_cols(progressIDs, progress)
+		committees <- XML::xmlApply(billobject[["committee"]], XML::xmlToList) %>%
+					plyr::llply(.fun = function(x) {
+						ifelse(is.null(x), NA, x)
+					}) %>% dplyr::as_data_frame() %>%
+					dplyr::bind_rows()
 
-  # Create the bill sponsors object (also contains multiple lists)
-  sponsors <- XML::xmlApply(billobject[["sponsors"]], XML::xmlToList)
-#                       FUN = function(x){
-#                         list(
-#                           people_id = xmlValue(x[["people_id"]]),
-#                           name = xmlValue(x[["name"]]),
-#                           role_id = xmlValue(x[["role_id"]]),
-#                           ftm_id = xmlValue(x[["ftm_id"]]),
-#                           sponsor_type_id = xmlValue(x[["sponsor_type_id"]]),
-#                           sponsor_order = xmlValue(x[["sponsor_order"]])
-#                         )
-#                       }
-#  )
+  	  	committees <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  					nrow(committees)), ], committees,
+    					parseTime[rep(seq_len(1), nrow(committees)), ])
 
-  # ID References for sponsors tables
-  sponsorIDs <- dplyr::bind_cols(billData[c(1, 2, 11, 10)])
+	  	theData[["committees"]] <- committees
 
-  # Convert the bill sponsors object to a data frame and
-  # prevent NULL values from causing problems
-  sponsors <- dplyr::bind_rows(plyr::llply(sponsors, function(f) {
-    as.data.frame(Filter(Negate(is.null), f), stringsAsFactors = FALSE)
-  }))
+	} else {
+		committees <- NULL
+	}
+	if (!is.null(billobject[["texts"]])) {
 
-  # Replicate the number of rows of sponsor IDs needed to file the sponsors data frame
-  sponsorIDs <- sponsorIDs[rep(seq_len(nrow(sponsorIDs)), nrow(sponsors)), ]
+		texts <- 	XML::xmlApply(billobject[["texts"]], XML::xmlToList) %>%
+					plyr::llply(.fun = function(x) {
+						plyr::llply(x, .fun = function(y) {
+							ifelse(is.null(y), NA, y)
+						}) %>%
+						dplyr::as_data_frame()
+					}) %>% dplyr::bind_rows()
 
-  # Add ID references to sponsors table
-  sponsors <- dplyr::bind_cols(sponsorIDs, sponsors)
+		texts <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  					nrow(texts)), ], texts,
+    					parseTime[rep(seq_len(1), nrow(texts)), ])
 
-  if (!is.null(billobject[["texts"]])) {
+		# Check for retreival value for full bill texts
+	  	if (fullText %in% c("state_link", "url")) {
+		  	# Generate a list of all of the state link elements
+		    linkList <- as.list(texts[[fullText]])
+	  		names(linkList) <- rep("full_bill_text", length(linkList))
+	  		# Retrieve/Clean bill text if the URL request doesn't fail
+	  		cleanText <- plyr::llply(linkList, .fun = function(link) {
+		  			if (httr::http_status(
+		  					httr::GET(link))$message == "success: (200) OK") {
+		  					paste(XML::xpathApply(XML::htmlParse(link),
+                                	"//p", XML::xmlValue), collapse = "\n")
+		  			} else {
+		  				"Could not retrieve full bill text from URL"
+		  			}
+	  			}) %>% dplyr::as_data_frame()
 
-    # Create the bill text object (will need to pass
-    # the state_link slot to separate function to retrieve text)
-    texts <- XML::xmlApply(billobject[["texts"]], XML::xmlToList)
-#                      FUN = function(x){
-#                        list(
-#                          doc_id = xmlValue(x[["doc_id"]]),
-#                          date = ymd(xmlValue(x[["date"]])),
-#                          type = xmlValue(x[["type"]]),
-#                          mime = xmlValue(x[["mime"]]),
-#                          url = xmlValue(x[["url"]]),
-#                          state_link = xmlValue(x[["state_link"]])
-#                        )
-#                      }
-#    )
+	  		cleanText <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+	  						nrow(cleanText)), ], cleanText)
 
-    # Generate a list of all of the state link elements
-    linkLists <- plyr::llply(texts, FUN = function(x){
-      list(x[["state_link"]])
-    })
+	  		# Bind the full text to the rest of the test data
+	  		texts <- dplyr::full_join(texts, cleanText)
+	  	}
 
-    # Retrieve, parse, and clean the text of the bills
-    cleanText <- plyr::llply(linkLists, FUN = function(links) {
-      tryCatch(paste(XML::xpathApply(XML::htmlParse(links),
-                                "//p", XML::xmlValue), collapse = "\n"),
-               error = function(e) {
-                 list(c("drop me"),
-                      c("Error loading the bill text"))
-               })
-    })
+		texts$doc_id <- as.numeric(texts$doc_id)
+	  	texts$date <- lubridate::ymd(texts$date)
 
-    # Create data table with the text data
-    fullText <- plyr::ldply(cleanText, dplyr::bind_rows)
+	  	theData[["texts"]] <- texts
 
-    # Convert text back to character vector
-    fullText[, 2] <- toString(fullText[, 2])
+	} else {
+		texts <- NULL
+	}
+	if (!is.null(billobject[["votes"]])) {
+		votes <- XML::xmlApply(billobject[["progress"]], XML::xmlToList) %>%
+				plyr::llply(.fun = function(x) {
+					plyr::llply(x, .fun = function(y) {
+							ifelse(is.null(y) | nchar(y) == 0, NA, y)
+						}) %>%
+					dplyr::as_data_frame()
+				}) %>% dplyr::bind_rows()
 
-    # Assign a name to the cleaned full text data table
-    names(fullText) <- c("drop", "full_bill_text")
+  	  	votes <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(votes)), ], votes,
+  	  					parseTime[rep(seq_len(1), nrow(votes)), ])
+		votes$date <- lubridate::ymd(votes$date)
 
-    # Remove the ID column generated by dplyr
-    fullText <- fullText[, 2]
+	  	theData[["votes"]] <- votes
 
-    # Convert the bill texts object to a data frame and prevent NULL
-	# values from causing problems
-    texts <- dplyr::bind_rows(plyr::llply(texts, function(f) {
-      as.data.frame(Filter(Negate(is.null), f), stringsAsFactors = FALSE)
-    }))
+	} else {
+		votes <- NULL
+	}
+	if (!is.null(billobject[["progress"]])) {
 
-  } else {
+		progress <- XML::xmlApply(billobject[["progress"]], XML::xmlToList) %>%
+				plyr::llply(.fun = function(x) {
+					plyr::llply(x, .fun = function(y) {
+						ifelse(is.null(y), NA, y)
+					}) %>%
+					dplyr::as_data_frame()
+				}) %>% dplyr::bind_rows()
 
-    # Create NULL Texts object
-    texts <- as.data.frame(dplyr::bind_cols(doc_id = NA, date = NA,
-                                 type = NA, mime = NA, url = NA,
-                                 state_link = NA))
-  }
+		progress <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  					nrow(progress)), ], progress,
+    					parseTime[rep(seq_len(1), nrow(progress)), ])
+	  	progress$date <- lubridate::ymd(progress$date)
+	  	progress$event <- as.numeric(progress$event)
 
-  # ID References for text tables
-  textIDs <- cbind(billData[c(1, 2, 10, 11, 14, 15, 16)])
+		theData[["progress"]] <- progress
 
-  # Copy the appropriate number of rows for the text IDs object
-  textIDs <- textIDs[rep(seq_len(nrow(textIDs)), nrow(texts)), ]
+	} else {
+		progress <- NULL
+	}
 
-  # Add ID references to text tables
-  texts <- dplyr::bind_cols(textIDs, texts, full_bill_text = fullText,
-                 stringsAsFactors = FALSE)
-
-  # ID References for votes tables
-  voteIDs <- dplyr::bind_cols(billData[c(1, 2, 10, 11)])
-
-  # Check to see if the votes object is null
-  if (!is.null(billobject[["votes"]])) {
-
-    # Create the bill voting records object
-    # Note: pass the state_link slot to the votingRecords function to
-  	# retrieve and parse the pdf formatted versions of the voting
-  	# records from the state's website
-    votes <- XML::xmlApply(billobject[["votes"]], XML::xmlToList)
-#                      FUN = function(x){
-#                        list(
-#                          roll_call_id = xmlValue(x[["roll_call_id"]]),
-#                          date = ymd(xmlValue(x[["date"]])),
-#                          passed = xmlValue(x[["passed"]]),
-#                          desc = xmlValue(x[["desc"]]),
-#                          url = xmlValue(x[["url"]]),
-#                          state_link = xmlValue(x[["state_link"]])
-#                        )
-#                      }
-#                    )
-
-    # Convert the bill votes object to a data frame and prevent
-	# NULL values from causing problems
-    votes <- dplyr::bind_rows(plyr::llply(votes, function(f) {
-      as.data.frame(Filter(Negate(is.null), f), stringsAsFactors = FALSE)
-    }))
-
-  } else {
-
-    # Create a Null data frame for the broken case
-    votes <- as.data.frame(cbind(roll_call_id = NA, date = NA, passed = NA,
-                                 desc = NA, url = NA, state_link = NA),
-                           stringsAsFactors = FALSE)
-
-  }
-
-  # Copy the appropriate number of rows for the vote IDs object
-  voteIDs <- voteIDs[rep(seq_len(nrow(voteIDs)), nrow(votes)), ]
-
-  # Add the ID References to the votes table
-  votes <- dplyr::bind_cols(voteIDs, votes)
-
-  # Store all of the data frames in a list object that will be returned at
-  # the end of the function call
-  legiBill <- list(billMetaData = billData, billHistory = history,
-                   billProgress = progress, billSponsors = sponsors,
-                   billText = texts, billVoteOutcomes = votes)
-
-  # Return the list of dataframes with all of the bill data
-  return(legiBill)
-
-} # End of Function
+  	return(theData)
+}

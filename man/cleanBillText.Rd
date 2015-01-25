@@ -7,7 +7,7 @@
 cleanBillText(BillText)
 }
 \arguments{
-\item{rawBillText}{Object returned from the billText method for the LegiScan class}
+\item{BillText}{Object returned from the billText method for the LegiScan class}
 }
 \value{
 Returns a list containing meta data and the binary MIME object containing

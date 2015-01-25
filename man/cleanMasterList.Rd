@@ -4,15 +4,20 @@
 \alias{cleanMasterList}
 \title{Wrappers - Parsing/Cleaning Master Lists}
 \usage{
-cleanMasterList(rawMasterList, data = FALSE, makeArchive = FALSE)
+cleanMasterList(MasterList, data = FALSE, makeArchive = TRUE,
+  xmloptions = c(RECOVER, NOCDATA))
 }
 \arguments{
-\item{rawMasterList}{Object returned from the masterList method for the LegiScan class}
+\item{MasterList}{Object returned from the masterList method for the LegiScan class}
 
 \item{data}{A logical indicating whether the function should return
 a data frame object (TRUE) or a tbl_df object (FALSE)}
 
 \item{makeArchive}{A logical indicating whether or not to save an archive file}
+
+\item{xmloptions}{Is used to specify additional options to the xmlParse
+used to define the behavior of the underlying XML parsing engine.  By default,
+xmloptions = c(RECOVER, NOCDATA) is specified}
 }
 \value{
 Returns the master list of all legislation post processing/cleaning

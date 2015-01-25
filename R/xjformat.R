@@ -22,6 +22,8 @@ xjformat <- function(x) {
 	# Else treat as text
 	else class(x) <- "character"
 
+
+
 	# Return the object with the class modification(s)
 	return(x)
 

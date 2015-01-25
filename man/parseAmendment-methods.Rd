@@ -62,39 +62,22 @@ Other LegiScan API Parser Generics: \code{\link{parseBillText}},
   \code{\link{parseBill,XMLDocumentContent,logical,character-method}},
   \code{\link{parseBill,character,logical,character-method}};
   \code{\link{parseMasterList}},
-  \code{\link{parseMasterList,XMLDocumentContent,logical,logical-method}},
-  \code{\link{parseMasterList,character,logical,logical-method}},
-  \code{\link{parseSessions,character,logical,logical-method}};
-  \code{\link{parseQuery}}; \code{\link{parseRollCall}},
-  \code{\link{parseRollCall,XMLDocumentContent,logical-method}},
-  \code{\link{parseRollCall,character,logical-method}};
-  \code{\link{parseSessions}},
-  \code{\link{parseSessions,XMLDocumentContent,logical-method}},
-  \code{\link{parseSessions,character,logical-method}},
-  \code{\link{parseStates}}; \code{\link{parseSponsor}};
-  \code{\link{parseSupplement}},
-  \code{\link{parseSupplement,XMLDocumentContent-method}},
-  \code{\link{parseSupplement,character-method}}
-
-Other LegiScan Parser Methods: \code{\link{parseBillText}},
-  \code{\link{parseBillText,XMLDocumentContent-method}},
-  \code{\link{parseBillText,character-method}};
-  \code{\link{parseBill}},
-  \code{\link{parseBill,XMLDocumentContent,logical,character-method}},
-  \code{\link{parseBill,character,logical,character-method}};
-  \code{\link{parseMasterList}},
-  \code{\link{parseMasterList,XMLDocumentContent,logical,logical-method}},
-  \code{\link{parseMasterList,character,logical,logical-method}},
-  \code{\link{parseSessions,character,logical,logical-method}};
+  \code{\link{parseMasterList,XMLDocumentContent,logical,logical,numeric-method}},
+  \code{\link{parseMasterList,character,logical,logical,missing-method}},
+  \code{\link{parseSessions,character,logical,logical,missing-method}};
+  \code{\link{parseQuery}},
+  \code{\link{parseQuery,XMLDocumentContent-method}},
+  \code{\link{parseQuery,character-method}};
   \code{\link{parseRollCall}},
   \code{\link{parseRollCall,XMLDocumentContent,logical-method}},
   \code{\link{parseRollCall,character,logical-method}};
   \code{\link{parseSessions}},
   \code{\link{parseSessions,XMLDocumentContent,logical-method}},
-  \code{\link{parseSessions,character,logical-method}},
-  \code{\link{parseStates}};
+  \code{\link{parseSessions,character,logical-method}};
+  \code{\link{parseSponsor}},
   \code{\link{parseSponsor,XMLDocumentContent,logical-method}},
   \code{\link{parseSponsor,character,logical-method}};
+  \code{\link{parseStates}},
   \code{\link{parseStates,XMLDocumentContent,logical-method}},
   \code{\link{parseStates,character,logical-method}};
   \code{\link{parseSupplement}},
@@ -108,18 +91,51 @@ Other LegiScan Parser Methods: \code{\link{parseBillText}},
   \code{\link{parseBill,XMLDocumentContent,logical,character-method}},
   \code{\link{parseBill,character,logical,character-method}};
   \code{\link{parseMasterList}},
-  \code{\link{parseMasterList,XMLDocumentContent,logical,logical-method}},
-  \code{\link{parseMasterList,character,logical,logical-method}},
-  \code{\link{parseSessions,character,logical,logical-method}};
+  \code{\link{parseMasterList,XMLDocumentContent,logical,logical,numeric-method}},
+  \code{\link{parseMasterList,character,logical,logical,missing-method}},
+  \code{\link{parseSessions,character,logical,logical,missing-method}};
+  \code{\link{parseQuery}},
+  \code{\link{parseQuery,XMLDocumentContent-method}},
+  \code{\link{parseQuery,character-method}};
   \code{\link{parseRollCall}},
   \code{\link{parseRollCall,XMLDocumentContent,logical-method}},
   \code{\link{parseRollCall,character,logical-method}};
   \code{\link{parseSessions}},
   \code{\link{parseSessions,XMLDocumentContent,logical-method}},
-  \code{\link{parseSessions,character,logical-method}},
-  \code{\link{parseStates}};
+  \code{\link{parseSessions,character,logical-method}};
+  \code{\link{parseSponsor}},
   \code{\link{parseSponsor,XMLDocumentContent,logical-method}},
   \code{\link{parseSponsor,character,logical-method}};
+  \code{\link{parseStates}},
+  \code{\link{parseStates,XMLDocumentContent,logical-method}},
+  \code{\link{parseStates,character,logical-method}};
+  \code{\link{parseSupplement}},
+  \code{\link{parseSupplement,XMLDocumentContent-method}},
+  \code{\link{parseSupplement,character-method}}
+
+Other LegiScan Parser Methods: \code{\link{parseBillText}},
+  \code{\link{parseBillText,XMLDocumentContent-method}},
+  \code{\link{parseBillText,character-method}};
+  \code{\link{parseBill}},
+  \code{\link{parseBill,XMLDocumentContent,logical,character-method}},
+  \code{\link{parseBill,character,logical,character-method}};
+  \code{\link{parseMasterList}},
+  \code{\link{parseMasterList,XMLDocumentContent,logical,logical,numeric-method}},
+  \code{\link{parseMasterList,character,logical,logical,missing-method}},
+  \code{\link{parseSessions,character,logical,logical,missing-method}};
+  \code{\link{parseQuery}},
+  \code{\link{parseQuery,XMLDocumentContent-method}},
+  \code{\link{parseQuery,character-method}};
+  \code{\link{parseRollCall}},
+  \code{\link{parseRollCall,XMLDocumentContent,logical-method}},
+  \code{\link{parseRollCall,character,logical-method}};
+  \code{\link{parseSessions}},
+  \code{\link{parseSessions,XMLDocumentContent,logical-method}},
+  \code{\link{parseSessions,character,logical-method}};
+  \code{\link{parseSponsor}},
+  \code{\link{parseSponsor,XMLDocumentContent,logical-method}},
+  \code{\link{parseSponsor,character,logical-method}};
+  \code{\link{parseStates}},
   \code{\link{parseStates,XMLDocumentContent,logical-method}},
   \code{\link{parseStates,character,logical-method}};
   \code{\link{parseSupplement}},

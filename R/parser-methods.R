@@ -23,20 +23,30 @@ setMethod(f = "parseStates",
 		  signature("XMLDocumentContent", "logical"),
 		  definition = function(rawStateList, dataframe = TRUE) {
 
-				  if (dataframe == TRUE) {
-					  # Generate data frame
-					  parsed <- XML::xmlRoot(XML::xmlParse(
-					  					  rawStateList))[["states"]] %>%
-				  			 	XML::xmlToDataFrame(stringsAsFactors = FALSE)
-				  } else {
-				  	parsed <- XML::xmlRoot(XML::xmlParse(
-				  						  rawSessionList))[["states"]] %>%
-				  			  XML::xmlToList()
-				  }
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 
-				  # Return the cleaner/parsed data
-				  return(parsed)
-		  })
+	if (dataframe == TRUE) {
+		# Generate data frame
+		parsed <- XML::xmlRoot(XML::xmlParse(rawStateList))[["states"]] %>%
+		XML::xmlToDataFrame(stringsAsFactors = FALSE)
+
+		# Generate Correct # of rows for the parseTime variable
+		parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
+
+		# Add parse timestamp to data frame
+		parsed <- dplyr::bind_cols(parsed, parseTime)
+
+	} else {
+		parsed <- XML::xmlRoot(XML::xmlParse(rawStateList))[["states"]] %>%
+		XML::xmlToList()
+		parsed[["parseTime"]] <- parseTime
+
+	}
+
+# Return the cleaner/parsed data
+return(parsed)
+})
 
 #' @family LegiScan Parser Methods
 #' @docType methods
@@ -49,6 +59,8 @@ setMethod(f = "parseStates",
 		  signature("character", "logical"),
 		  definition = function(rawStateList, dataframe = TRUE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(rawStateList))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -57,16 +69,25 @@ setMethod(f = "parseStates",
 
 		  	if (dataframe == TRUE) {
 		  		# Parse the JSON data into a Data frame
-		  		parsed <- RJSONIO::fromJSON(rawStateList, nullValue = "null",
+		  		parsed <- RJSONIO::fromJSON(rawStateList, nullValue = NA,
 		  									simplify = Strict, asText = TRUE,
 		  									simplifyWithNames = TRUE)[["states"]] %>%
 		  									plyr::ldply(as.data.frame)
+
+		  		# Generate Correct # of rows for the parseTime variable
+				parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
+
+				# Add parse timestamp to data frame
+				parsed <- dplyr::bind_cols(parsed, parseTime)
+
 		  	} else {
 
 		  		# Parse the JSON data into a list
-		  		parsed <- RJSONIO::fromJSON(rawStateList, nullValue = "null",
+		  		parsed <- RJSONIO::fromJSON(rawStateList, nullValue = NA,
 		  									simplify = Strict, asText = TRUE,
 		  									simplifyWithNames = TRUE)[["states"]]
+
+		  		parsed[["parseTime"]] <- parseTime
 		  	}
 
 		  	# Return the data
@@ -100,15 +121,26 @@ setMethod(f = "parseSessions",
 		  signature("XMLDocumentContent", "logical"),
 		  definition = function(rawSessionList, dataframe = TRUE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	if (dataframe == TRUE) {
 		  		# Generate data frame
 		  		parsed <- XML::xmlRoot(XML::xmlParse(
 		  			rawSessionList))[["sessions"]] %>%
 		  			XML::xmlToDataFrame(stringsAsFactors = FALSE)
+
+				# Generate Correct # of rows for the parseTime variable
+				parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
+
+				# Add parse timestamp to data frame
+				parsed <- dplyr::bind_cols(parsed, parseTime)
+
 		  	} else {
 		  		parsed <- XML::xmlRoot(XML::xmlParse(
 		  			rawSessionList))[["sessions"]] %>%
 		  			XML::xmlToList()
+
+		  		parsed[["parseTime"]] <- parseTime
 		  	}
 
 		  	# Return the cleaner/parsed data
@@ -126,6 +158,8 @@ setMethod(f = "parseSessions",
 		  signature("character", "logical"),
 		  definition = function(rawSessionList, dataframe = TRUE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(rawSessionList))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -134,16 +168,25 @@ setMethod(f = "parseSessions",
 
 		  	if (dataframe == TRUE) {
 		  		# Parse the JSON data into a Data frame
-		  		parsed <- RJSONIO::fromJSON(rawSessionList, nullValue = "null",
+		  		parsed <- RJSONIO::fromJSON(rawSessionList, nullValue = NA,
 		  									simplify = Strict, asText = TRUE,
 		  									simplifyWithNames = TRUE)[["sessions"]] %>%
 		  			plyr::ldply(as.data.frame)
+
+		  		# Generate Correct # of rows for the parseTime variable
+				parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
+
+				# Add parse timestamp to data frame
+				parsed <- dplyr::bind_cols(parsed, parseTime)
+
 		  	} else {
 
 		  		# Parse the JSON data into a list
-		  		parsed <- RJSONIO::fromJSON(rawSessionList, nullValue = "null",
+		  		parsed <- RJSONIO::fromJSON(rawSessionList, nullValue = NA,
 		  									simplify = Strict, asText = TRUE,
 		  									simplifyWithNames = TRUE)[["sessions"]]
+
+		  		parsed[["parseTime"]] <- parseTime
 		  	}
 
 		  	# Return the data
@@ -175,58 +218,69 @@ setMethod(f = "parseSessions",
 #' @importFrom dplyr bind_cols
 #' @export parseMasterList
 #' @rdname parseMasterList-methods
-#' @aliases parseMasterList,XMLDocumentContent,logical,logical-method
+#' @aliases parseMasterList,XMLDocumentContent,logical,logical,numeric-method
 setMethod(f = "parseMasterList",
-		  signature("XMLDocumentContent", "logical", "logical"),
-		  definition = function(rawMasterList, dataframe = FALSE, archive) {
+		  signature("XMLDocumentContent", "logical", "logical", "numeric"),
+		  definition = function(rawMasterList, dataframe = FALSE, archive = TRUE,
+		  						option = c(RECOVER, NOCDATA)) {
 
-		  	# Master list files are a bit more complex, there is a small list used to ID
-	  		# the session followed by a list of bills.
-	  		# First get the session ID data into the data.frame
-	  		# Then put the bills in a separate data frame
-	  		# Replicate the correct # of rows of session IDs for the bills and bind them
-	  		# together.  The order doesn't matter since all bills will be from the same
-	  		# legislative session.
-		  	sessionIDs <- XML::xmlRoot(
-		  					XML::xmlParse(rawMasterList))[["masterlist"]][[1]] %>%
-		  					XML::xmlToList()
-		  	sessionIDs <- dplyr::as_data_frame(sessionIDs) %>%
-		  				  dplyr::as.tbl(stringsAsFactors = FALSE)
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 
-		  	bills <- XML::xmlRoot(
-		  					XML::xmlParse(rawMasterList))[["masterlist"]][-1] %>%
-		  					XML::xmlToDataFrame(stringsAsFactors = FALSE)
+	# Master list files are a bit more complex, there is a small list used to ID
+	# the session followed by a list of bills.
+	# First get the session ID data into the data.frame
+	# Then put the bills in a separate data frame
+	# Replicate the correct # of rows of session IDs for the bills and bind them
+	# together.  The order doesn't matter since all bills will be from the same
+	# legislative session.
+	sessionIDs <- XML::xmlRoot(XML::xmlParse(rawMasterList))[["masterlist"]][[1]] %>%
+	  			XML::xmlToList()
+	sessionIDs <- dplyr::as_data_frame(sessionIDs) %>%
+	  		  dplyr::as.tbl(stringsAsFactors = FALSE)
 
-		  	# Coerce character dates to POSIX dates
-	  		bills$status_date <- lubridate::ymd(bills$status_date)
-	  		bills$last_action_date <- lubridate::ymd(bills$last_action_date)
+	bills <- XML::xmlRoot(
+	  			XML::xmlParse(rawMasterList))[["masterlist"]][-1] %>%
+	  			XML::xmlToDataFrame(stringsAsFactors = FALSE)
 
-		  	# Need to coerce bill_ids to numeric from XML data, but cast as numeric in JSON
-		  	bills$bill_id <- as.numeric(bills$bill_id)
+	# Coerce character dates to POSIX dates
+	bills$status_date <- lubridate::ymd(bills$status_date)
+	bills$last_action_date <- lubridate::ymd(bills$last_action_date)
 
-		  	# Build the master list data object including the session ID data
-		  	parsed <- sessionIDs[rep(seq_len(nrow(sessionIDs)), nrow(bills)), ] %>%
-		  									dplyr::bind_cols(bills)
+	# Need to coerce bill_ids to numeric from XML data, but cast as numeric in JSON
+	bills$bill_id <- as.numeric(bills$bill_id)
 
-	  		# Coerce to data frame if the dataframe argument is set to TRUE
-			if (dataframe == TRUE) parsed <- as.data.frame(parsed, stringsAsFactors = FALSE)
+	# Build the master list data object including the session ID data
+	parsed <- sessionIDs[rep(seq_len(nrow(sessionIDs)), nrow(bills)), ] %>%
+	  						dplyr::bind_cols(bills)
 
-	  		# Check archive option
-	  		if (archive == TRUE) {
+	# Generate Correct # of rows for the parseTime variable
+	parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
 
-	  			# Save an archive file
-	  			saveRDS(parsed, file = paste0("MasterListArchive", Sys.time(), ".Rds"))
+	# Add parse timestamp to data frame
+	parsed <- dplyr::bind_cols(parsed, parseTime)
 
-	  			# Return data object
-	  			return(parsed)
+	# Coerce to data frame if the dataframe argument is set to TRUE
+	if (dataframe == TRUE) {
+		parsed <- as.data.frame(parsed, stringsAsFactors = FALSE)
+	}
 
-			} else {
+	# Check archive option
+	if (archive == TRUE) {
 
-	  			# Return data object
-	  			return(parsed)
+		# Save an archive file
+		saveRDS(parsed, file = paste0("MasterListArchive", Sys.time(), ".Rds"))
 
-			}
-		  })
+		# Return data object
+		return(parsed)
+
+	} else {
+
+		# Return data object
+		return(parsed)
+
+	}
+})
 
 
 #' @family LegiScan Parser Methods
@@ -236,12 +290,15 @@ setMethod(f = "parseMasterList",
 #' @importFrom dplyr bind_cols
 #' @export parseMasterList
 #' @rdname parseMasterList-methods
-#' @aliases parseSessions,character,logical,logical-method
+#' @aliases parseSessions,character,logical,logical,NULL-method
 setMethod(f = "parseMasterList",
-		  signature("character", "logical", "logical"),
-		  definition = function(rawMasterList, dataframe = FALSE, archive = TRUE) {
+		  signature("character", "logical", "logical", "NULL"),
+		  definition = function(rawMasterList, dataframe = FALSE, archive = TRUE, option = NULL) {
 
-			  	# Validate the JSON
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
+		  	# Validate the JSON
 			  	if (!(RJSONIO::isValidJSON(rawMasterList, asText = TRUE))) {
 			  		warning(cat(paste("JSON object is not valid",
 			  				  "will still attempt to parse", sep = "\n")))
@@ -251,12 +308,12 @@ setMethod(f = "parseMasterList",
 		  		# No changes to the method beyond using a different method to
 		  		# interpret the data (e.g., XML v JSON)
 		  		sessionIDs <- RJSONIO::fromJSON(rawMasterList, simplify = Strict,
-  								asText = TRUE, nullValue = "null",
+  								asText = TRUE, nullValue = NA,
   								simplifyWithNames = TRUE)[["masterlist"]][1] %>%
   								plyr::ldply(as.data.frame, stringsAsFactors = FALSE)
 
 		  		bills <- RJSONIO::fromJSON(rawMasterList, simplify = Strict,
-  							   asText = TRUE, nullValue = "null",
+  							   asText = TRUE, nullValue = NA,
   							   simplifyWithNames = TRUE)[["masterlist"]][-1] %>%
   							   plyr::ldply(as.data.frame, stringsAsFactors = FALSE)
 
@@ -267,11 +324,21 @@ setMethod(f = "parseMasterList",
 		  		parsed <- sessionIDs[rep(seq_len(nrow(sessionIDs)), nrow(bills)), -1] %>%
 		  									dplyr::bind_cols(bills[, -1])
 
-				if (dataframe == TRUE) parsed <- as.data.frame(parsed,
-														stringsAsFactors = FALSE)
+				# Add parse timestamp to data frame
+				parsed <- dplyr::bind_cols(parsed,
+							as.data.frame(parseTime[rep(seq_len(1), nrow(parsed)), 1]))
+
+		  		# Clean up the ugly variable names
+		  		names(parsed) <- c(names(parsed[, -13]), "parseTime")
+
+		  		# Convert to a tbl_df object
+		  		parsed <- dplyr::as_data_frame(parsed)
+
+		  		if (dataframe == TRUE) parsed <- as.data.frame(parsed, stringsAsFactors = FALSE)
 
 		  		if (archive == TRUE) {
-		  			saveRDS(parsed, file = paste0("MasterListArchive", Sys.time(), ".Rds"))
+		  			saveRDS(parsed, file = paste0("MasterListArchive", Sys.time(), ".Rds"),
+		  						compress = TRUE)
 		  			return(parsed)
 				} else {
 					return(parsed)
@@ -299,7 +366,12 @@ setMethod(f = "parseMasterList",
 #' }
 #' @return Returns multiple data frame objects if dataframe = TRUE or returns a
 #' list of data frames if the dataframe = FALSE
-#' @importFrom XML xmlRoot xmlParse xmlToDataFrame xmlToList
+#' @importFrom XML xmlRoot xmlParse xmlToDataFrame xmlToList htmlParse xpathApply xmlValue
+#' @importFrom dplyr bind_rows bind_cols full_join as_data_frame
+#' @importFrom plyr llply
+#' @importFrom lubridate ymd now
+#' @importFrom magrittr %>%
+#' @importFrom httr GET http_status
 #' @export parseBill
 #' @rdname parseBill-methods
 #' @aliases parseBill,XMLDocumentContent,logical,character-method
@@ -307,7 +379,10 @@ setMethod(f = "parseBill",
 		  signature("XMLDocumentContent", "logical", "character"),
 		  definition = function(rawBill, dataframe = FALSE, fullText = "") {
 
-	  	# Check values of the fullText parameter
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
+		# Check values of the fullText parameter
 		if (!(fullText %in% c("", "state_link", "url"))) {
 			warning(cat(paste('Error: fullText not in "", state_link, or url',
 				'will not attempt to retrieve the full bill text', sep = "\n")))
@@ -399,18 +474,25 @@ setMethod(f = "parseBill",
 					}) %>% dplyr::bind_rows()
 
 	  	# Add ID vector to each of the data objects
-  	  	sponsors <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(sponsors)), ], sponsors)
-  	  	history <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(history)), ], history)
-  	  	committees <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(committees)), ], committees)
-  	  	progress <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(progress)), ], progress)
-  	  	votes <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(votes)), ], votes)
-  	  	texts <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(texts)), ], texts)
+  	  	sponsors <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(sponsors)), ], sponsors,
+  	  					parseTime[rep(seq_len(1), nrow(sponsors)), ])
+  	  	history <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(history)), ], history,
+  	  					parseTime[rep(seq_len(1), nrow(history)), ])
+  	  	committees <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(committees)), ], committees,
+  	  					parseTime[rep(seq_len(1), nrow(committees)), ])
+  	  	progress <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(progress)), ], progress,
+  	  					parseTime[rep(seq_len(1), nrow(progress)), ])
+  	  	votes <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(votes)), ], votes,
+  	  					parseTime[rep(seq_len(1), nrow(votes)), ])
+  	  	texts <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(texts)), ], texts,
+  	  					parseTime[rep(seq_len(1), nrow(texts)), ])
+		billMeta <- dplyr::bind_cols(billMeta, parseTime[rep(seq_len(1), nrow(billMeta)), ])
 
 	  	# Check for retreival value for full bill texts
 	  	if (fullText %in% c("state_link", "url")) {
@@ -422,14 +504,20 @@ setMethod(f = "parseBill",
 	  		cleanText <- plyr::llply(linkList, .fun = function(link) {
 		  			if (httr::http_status(
 		  					httr::GET(link))$message == "success: (200) OK") {
-		  					paste(XML::xpathApply(XML::htmlParse(links),
+		  					paste(XML::xpathApply(XML::htmlParse(link),
                                 	"//p", XML::xmlValue), collapse = "\n")
 		  			} else {
 		  				"Could not retrieve full bill text from URL"
 		  			}
 	  			}) %>% dplyr::as_data_frame()
+
+	  		# Add the ID vector to the Text data (can cause erroneous rows
+	  		# to appear as NA values otherwise)
+	  		cleanText <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+	  						nrow(cleanText)), ], cleanText)
+
 	  		# Bind the full text to the rest of the test data
-	  		texts <- dplyr::bind_rows(texts, cleanText)
+	  		texts <- dplyr::full_join(texts, cleanText)
 	  	}
 
 	  	# Reformat date/numeric values for data frames that include dates
@@ -473,9 +561,9 @@ setMethod(f = "parseBill",
 #' @return Returns multiple data frame objects if dataframe = TRUE or returns a
 #' list of data frames if the dataframe = FALSE
 #' @importFrom RJSONIO isValidJSON fromJSON
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @importFrom plyr llply
-#' @importFrom dplyr as_data_frame bind_rows bind_cols
+#' @importFrom dplyr as_data_frame bind_rows bind_cols full_join
 #' @importFrom httr http_status GET
 #' @importFrom XML xpathApply htmlParse xmlValue
 #' @export parseBill
@@ -485,7 +573,10 @@ setMethod(f = "parseBill",
 		  signature("character", "logical", "character"),
 		  definition = function(rawBill, dataframe = FALSE, fullText = "") {
 
-	  	# Check values of the fullText parameter
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
+		  # Check values of the fullText parameter
 		if (!(fullText %in% c("", "state_link", "url"))) {
 			warning(cat(paste('Error: fullText not in "", state_link, or url',
 				'will not attempt to retrieve the full bill text', sep = "\n")))
@@ -566,18 +657,25 @@ setMethod(f = "parseBill",
 					}) %>% dplyr::bind_rows()
 
 	  	# Add ID vector to each of the data objects
-  	  	sponsors <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(sponsors)), ], sponsors)
-  	  	history <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(history)), ], history)
-  	  	committees <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(committees)), ], committees)
-  	  	progress <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(progress)), ], progress)
-  	  	votes <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(votes)), ], votes)
-  	  	texts <- bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(texts)), ], texts)
+  	  	sponsors <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(sponsors)), ], sponsors,
+  	  					parseTime[rep(seq_len(1), nrow(sponsors)), ])
+  	  	history <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(history)), ], history,
+  	  					parseTime[rep(seq_len(1), nrow(history)), ])
+  	  	committees <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(committees)), ], committees,
+  	  					parseTime[rep(seq_len(1), nrow(committees)), ])
+  	  	progress <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(progress)), ], progress,
+  	  					parseTime[rep(seq_len(1), nrow(progress)), ])
+  	  	votes <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(votes)), ], votes,
+  	  					parseTime[rep(seq_len(1), nrow(votes)), ])
+  	  	texts <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(texts)), ], texts,
+  	  					parseTime[rep(seq_len(1), nrow(texts)), ])
+		billMeta <- dplyr::bind_cols(billMeta, parseTime[rep(seq_len(1), nrow(billMeta)), ])
 
 	  	# Check for retreival value for full bill texts
 	  	if (fullText %in% c("state_link", "url")) {
@@ -589,14 +687,20 @@ setMethod(f = "parseBill",
 	  		cleanText <- plyr::llply(linkList, .fun = function(link) {
 		  			if (httr::http_status(
 		  					httr::GET(link))$message == "success: (200) OK") {
-		  					paste(XML::xpathApply(XML::htmlParse(links),
+		  					paste(XML::xpathApply(XML::htmlParse(link),
                                 	"//p", XML::xmlValue), collapse = "\n")
 		  			} else {
 		  				"Could not retrieve full bill text from URL"
 		  			}
 	  			}) %>% dplyr::as_data_frame()
+
+	  		# Add the ID vector to the Text data (can cause erroneous rows
+	  		# to appear as NA values otherwise)
+	  		cleanText <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+	  						nrow(cleanText)), ], cleanText)
+
 	  		# Bind the full text to the rest of the test data
-	  		texts <- dplyr::bind_rows(texts, cleanText)
+	  		texts <- dplyr::full_join(texts, cleanText)
 	  	}
 
 	  	# Reformat date/numeric values for data frames that include dates
@@ -666,7 +770,7 @@ setMethod(f = "parseBill",
 #' specified for the text argument.
 #' @importFrom XML xmlRoot xmlParse xmlToList
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseBillText
 #' @rdname parseBillText-methods
 #' @aliases parseBillText,XMLDocumentContent-method
@@ -674,9 +778,12 @@ setMethod(f = "parseBillText",
 		  signature("XMLDocumentContent"),
 		  definition = function(theBillText) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
 		  	# Parse the API call response from the billText method
 		  	billText <- XML::xmlRoot(XML::xmlParse(theBillText)) %>%
-		  				XML::xmlToList %>% unlist(recursive = FALSE)
+		  				XML::xmlToList() %>% unlist(recursive = FALSE)
 
 		  	# Clean up the names of the elements
 		  	billText <- gsub("text.", "", names(billText))
@@ -685,6 +792,8 @@ setMethod(f = "parseBillText",
 		  	billText$date <- lubridate::ymd(billText$date)
 		  	billText$doc_id <- as.numeric(billText$doc_id)
 		  	billText$bill_id <- as.numeric(billText$bill_id)
+
+		  	billText$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(billText[-1])
@@ -695,7 +804,7 @@ setMethod(f = "parseBillText",
 #' @docType methods
 #' @importFrom RJSONIO isValidJSON fromJSON
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseBillText
 #' @rdname parseBillText-methods
 #' @aliases parseBillText,character-method
@@ -703,6 +812,8 @@ setMethod(f = "parseBillText",
 		  signature("character"),
 		  definition = function(theBillText) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(theBillText))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -722,6 +833,7 @@ setMethod(f = "parseBillText",
 		  	billText$date <- lubridate::ymd(billText$date)
 		  	billText$doc_id <- as.numeric(billText$doc_id)
 		  	billText$bill_id <- as.numeric(billText$bill_id)
+			billText$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(billText[-1])
@@ -761,7 +873,7 @@ setMethod(f = "parseBillText",
 #' in all states.
 #' @importFrom XML xmlRoot xmlParse xmlToList
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseAmendment
 #' @rdname parseAmendment-methods
 #' @aliases parseAmendment,XMLDocumentContent-method
@@ -769,9 +881,11 @@ setMethod(f = "parseAmendment",
 		  signature("XMLDocumentContent"),
 		  definition = function(theAmendment) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Parse the API call response from the amendment method
 		  	anAmendment <- XML::xmlRoot(XML::xmlParse(theAmendment)) %>%
-		  				XML::xmlToList %>% unlist(recursive = FALSE)
+		  				XML::xmlToList() %>% unlist(recursive = FALSE)
 
 		  	# Clean up the names of the elements
 		  	anAmendment <- gsub("amendment.", "", names(anAmendment))
@@ -781,6 +895,7 @@ setMethod(f = "parseAmendment",
 		  	anAmendment$amendment_id <- as.numeric(anAmendment$amendment_id)
 		  	anAmendment$bill_id <- as.numeric(anAmendment$bill_id)
 			anAmendment$adopted <- as.numeric(anAmendment$adopted)
+			anAmendment$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(anAmendment[-1])
@@ -791,7 +906,7 @@ setMethod(f = "parseAmendment",
 #' @docType methods
 #' @importFrom RJSONIO isValidJSON fromJSON
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseAmendment
 #' @rdname parseAmendment-methods
 #' @aliases parseAmendment,character-method
@@ -799,6 +914,8 @@ setMethod(f = "parseAmendment",
 		  signature("character"),
 		  definition = function(theAmendment) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(theAmendment))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -819,6 +936,7 @@ setMethod(f = "parseAmendment",
 		  	anAmendment$amendment_id <- as.numeric(anAmendment$amendment_id)
 		  	anAmendment$bill_id <- as.numeric(anAmendment$bill_id)
 			anAmendment$adopted <- as.numeric(anAmendment$adopted)
+			anAmendment$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(anAmendment[-1])
@@ -858,7 +976,7 @@ setMethod(f = "parseAmendment",
 #' in all states.
 #' @importFrom XML xmlRoot xmlParse xmlToList
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseSupplement
 #' @rdname parseSupplement-methods
 #' @aliases parseSupplement,XMLDocumentContent-method
@@ -866,9 +984,11 @@ setMethod(f = "parseSupplement",
 		  signature("XMLDocumentContent"),
 		  definition = function(theSupplement) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Parse the API call response from the supplement method
 		  	aSupplement <- XML::xmlRoot(XML::xmlParse(theSupplement)) %>%
-		  				XML::xmlToList %>% unlist(recursive = FALSE)
+		  				XML::xmlToList() %>% unlist(recursive = FALSE)
 
 		  	# Clean up the names of the elements
 		  	aSupplement <- gsub("supplement.", "", names(aSupplement))
@@ -878,6 +998,7 @@ setMethod(f = "parseSupplement",
 		  	aSupplement$supplement_id <- as.numeric(aSupplement$supplement_id)
 		  	aSupplement$bill_id <- as.numeric(aSupplement$bill_id)
 			aSupplement$type_id <- as.numeric(aSupplement$type_id)
+			aSupplement$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(aSupplement[-1])
@@ -888,7 +1009,7 @@ setMethod(f = "parseSupplement",
 #' @docType methods
 #' @importFrom RJSONIO isValidJSON fromJSON
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseSupplement
 #' @rdname parseSupplement-methods
 #' @aliases parseSupplement,character-method
@@ -896,6 +1017,8 @@ setMethod(f = "parseSupplement",
 		  signature("character"),
 		  definition = function(theSupplement) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(theSupplement))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -916,6 +1039,7 @@ setMethod(f = "parseSupplement",
 		  	aSupplement$supplement_id <- as.numeric(aSupplement$supplement_id)
 		  	aSupplement$bill_id <- as.numeric(aSupplement$bill_id)
 			aSupplement$type_id <- as.numeric(aSupplement$type_id)
+			aSupplement$parseTime <- parseTime
 
 		  	# Return the cleaner/parsed data [omit the HTTP status response]
 		  	return(aSupplement[-1])
@@ -955,7 +1079,7 @@ setMethod(f = "parseSupplement",
 #' in all states.
 #' @importFrom XML xmlRoot xmlParse xmlToList
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseRollCall
 #' @rdname parseRollCall-methods
 #' @aliases parseRollCall,XMLDocumentContent,logical-method
@@ -963,6 +1087,8 @@ setMethod(f = "parseRollCall",
 		  signature("XMLDocumentContent", "logical"),
 		  definition = function(theRollCall, dataframe = FALSE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Parse the API call response from the rollCall method
 		  	aRollCall <- XML::xmlRoot(XML::xmlParse(theRollCall))[["roll_call"]] %>%
 		  				XML::xmlToList
@@ -995,7 +1121,10 @@ setMethod(f = "parseRollCall",
 					}) %>% dplyr::bind_rows()
 
   	  	  	indVotes <- bind_cols(voteID[rep(seq_len(nrow(voteID)),
-  				nrow(indVotes)), ], indVotes)
+  				nrow(indVotes)), ], indVotes,
+  	  	  		parseTime[rep(seq_len(1), nrow(indVotes)), ])
+
+		  	voteMeta$parseTime <- parseTime
 
 		  	# Check the casting of the individual votes
 		  	indVotes$people_id <- as.numeric(indVotes$people_id)
@@ -1016,7 +1145,7 @@ setMethod(f = "parseRollCall",
 #' @docType methods
 #' @importFrom RJSONIO isValidJSON fromJSON
 #' @importFrom magrittr %>%
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd now
 #' @export parseRollCall
 #' @rdname parseRollCall-methods
 #' @aliases parseRollCall,character,logical-method
@@ -1024,6 +1153,8 @@ setMethod(f = "parseRollCall",
 		  signature("character", "logical"),
 		  definition = function(theRollCall, dataframe = FALSE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(theRollCall))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -1062,7 +1193,10 @@ setMethod(f = "parseRollCall",
 					}) %>% dplyr::bind_rows()
 
   	  	  	indVotes <- bind_cols(voteID[rep(seq_len(nrow(voteID)),
-  				nrow(indVotes)), ], indVotes)
+  				nrow(indVotes)), ], indVotes,
+  	  	  		parseTime[rep(seq_len(1), nrow(indVotes)), ])
+
+		  	voteMeta$parseTime <- parseTime
 
 		  	# Check the casting of the individual votes
 		  	indVotes$people_id <- as.numeric(indVotes$people_id)
@@ -1116,6 +1250,8 @@ setMethod(f = "parseSponsor",
 		  signature("XMLDocumentContent", "logical"),
 		  definition = function(theSponsor, dataframe = FALSE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Parse the API call response from the rollCall method
 		  	aSponsor <- XML::xmlRoot(XML::xmlParse(theSponsor))[["person"]] %>%
 		  				XML::xmlToList
@@ -1132,6 +1268,8 @@ setMethod(f = "parseSponsor",
 		  	for (i in names(legislatorIDs)) {
 		  		legislator[[i]] <- as.numeric(legislator[[i]])
 		  	}
+
+		  	legislator$parseTime <- parseTime
 
 		  	# Determine what type of object to return
 	  		if (dataframe == TRUE) {
@@ -1154,6 +1292,8 @@ setMethod(f = "parseSponsor",
 		  signature("character", "logical"),
 		  definition = function(theSponsor, dataframe = FALSE) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
 		  	# Validate the JSON
 		  	if (!(RJSONIO::isValidJSON(theSponsor))) {
 		  		warning(cat(paste("JSON object is not valid",
@@ -1177,6 +1317,8 @@ setMethod(f = "parseSponsor",
 		  		legislator[[i]] <- as.numeric(legislator[[i]])
 		  	}
 
+		  	legislator$parseTime <- parseTime
+
 		  	# Determine what type of object to return
 	  		if (dataframe == TRUE) {
 	  			# Return data.frame object
@@ -1186,3 +1328,117 @@ setMethod(f = "parseSponsor",
 	  		}
 
 		  })
+
+
+#' @title LegiScan Parser Methods - parseQuery
+#' @description Method for parsing responses from the legisearch method
+#' @family LegiScan Parser Methods
+#' @docType methods
+#' @examples \dontrun{
+#' # Create object of class LegiScan
+#' myLegiScan <- legiscanR()
+#'
+#' # Submit a query
+#' queryResponse <- legisearch(myLegiScan, state = "MS", query = "Something I Want To Know")
+#'
+#' # Parse the response from the search query API call
+#' cleanerQuery <- parseQuery(queryResponse)
+#'
+#' }
+#' @importFrom XML xmlRoot xmlParse xmlToList
+#' @importFrom magrittr %>%
+#' @importFrom lubridate ymd now
+#' @importFrom plyr ldply
+#' @importFrom dplyr as_data_frame bind_cols bind_rows
+#' @export parseQuery
+#' @rdname parseQuery-methods
+#' @aliases parseQuery,XMLDocumentContent-method
+setMethod(f = "parseQuery", signature("XMLDocumentContent"), definition = function(theQuery) {
+
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
+  	# Parse the API call response from the billText method
+  	queryResponse <- XML::xmlRoot(XML::xmlParse(theQuery))[["searchresult"]] %>%
+  						XML::xmlToList()
+
+	# Parse the summary of the query results
+	querySum <- dplyr::as_data_frame(queryResponse[["summary"]])
+
+	# Attach the parsing time stamp to the summary object
+	querySum$parseTime <- parseTime
+
+	# Parse the items retrieved by the response
+	queryResults <- plyr::ldply(queryResponse[-1], dplyr::as_data_frame) %>%
+		  						dplyr::bind_rows()
+
+	# Fix the casting of the data types in the query results
+	queryResults$relevance <- as.numeric(queryResults$relevance)
+	queryResults$bill_id <- as.numeric(queryResults$bill_id)
+	queryResults$last_action_date <- lubridate::ymd(queryResults$last_action_date)
+
+	# Attach the parse timestamp to the results set
+	queryResults <- dplyr::bind_cols(queryResults,
+				as.data.frame(parseTime[rep(seq_len(1), nrow(queryResults)), ]))
+
+	# Fix the ugly column name for the parse time
+	names(queryResults) <- c(names(queryResults[-13]), "parseTime")
+
+	# Package the data into a list object
+	response <- list(summary = querySum, results = dplyr::as_data_frame(queryResults))
+
+})
+
+#' @importFrom RJSONIO fromJSON isValidJSON
+#' @importFrom magrittr %>%
+#' @importFrom lubridate ymd now
+#' @importFrom plyr ldply
+#' @importFrom dplyr as_data_frame bind_cols bind_rows
+#' @export parseQuery
+#' @rdname parseQuery-methods
+#' @aliases parseQuery,character-method
+setMethod(f = "parseQuery", signature("character"), definition = function(theQuery) {
+
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now())
+
+	# Validate the JSON
+  	if (!(RJSONIO::isValidJSON(theQuery, asText = TRUE))) {
+  		warning(cat(paste("JSON object is not valid",
+  				"will still attempt to parse", sep = "\n")))
+  	}
+
+  	# Parse the API call response from the search method
+	queryResponse <- RJSONIO::fromJSON(theQuery, asText = TRUE,
+								nullValues = NA, simplify = Strict,
+								simplifyWithNames = TRUE)[["searchresult"]]
+
+	# Parse the summary of the query results
+	querySum <- dplyr::as_data_frame(queryResponse[["summary"]])
+
+	# Attach the parsing time stamp to the summary object
+	querySum$parseTime <- parseTime
+
+	# Parse the items retrieved by the response
+	queryResults <- plyr::ldply(queryResponse[-1], dplyr::as_data_frame) %>%
+	  						dplyr::bind_rows()
+
+	# Fix the casting of the data types in the query results
+	queryResults$relevance <- as.numeric(queryResults$relevance)
+	queryResults$bill_id <- as.numeric(queryResults$bill_id)
+	queryResults$last_action_date <- lubridate::ymd(queryResults$last_action_date)
+
+	# Attach the parse timestamp to the results set
+	queryResults <- dplyr::bind_cols(queryResults,
+				as.data.frame(parseTime[rep(seq_len(1), nrow(queryResults)), ]))
+
+	# Fix the ugly column name for the parse time
+	names(queryResults) <- c(names(queryResults[-13]), "parseTime")
+
+	# Package the data into a list object
+	response <- list(summary = querySum, results = dplyr::as_data_frame(queryResults))
+
+	# Return the cleaned/parsed data
+	return(response)
+
+})

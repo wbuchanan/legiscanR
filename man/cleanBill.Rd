@@ -4,10 +4,10 @@
 \alias{cleanBill}
 \title{Wrappers - Parsing/Cleaning Bill Data}
 \usage{
-cleanBill(billobject, data = FALSE, text = "")
+cleanBill(BillObject, data = FALSE, text = "")
 }
 \arguments{
-\item{billobject}{Object returned from the bill method for the LegiScan class}
+\item{BillObject}{An object returned from the bill method for the LegiScan class}
 
 \item{data}{A logical indicating whether the function should return
 separate data frame objects (TRUE) or return a list of data frames (FALSE)}

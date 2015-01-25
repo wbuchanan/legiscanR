@@ -4,10 +4,10 @@
 \alias{cleanStates}
 \title{Wrappers - Parsing/Cleaning State List}
 \usage{
-cleanStates(rawStateList, data = FALSE)
+cleanStates(StateList, data = FALSE)
 }
 \arguments{
-\item{rawStateList}{Object returned from the stateList method for the LegiScan class}
+\item{StateList}{Object returned from the stateList method for the LegiScan class}
 
 \item{data}{A logical indicating whether the function should return
 a data frame object (TRUE) or return a list (FALSE)}

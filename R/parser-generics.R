@@ -3,9 +3,9 @@
 #' @param rawStateList An object with the returned data from the stateList method
 #' @param dataframe A logical defining the returned object data type (set to false for a list)
 #' @docType methods
-#' @rdname parseSessions-methods
+#' @rdname parseStates-methods
 #' @family LegiScan API Parser Generics
-#' @export parseSessions
+#' @export parseStates
 setGeneric("parseStates",
 		   def = function(rawStateList, dataframe = TRUE) {
 		   	standardGeneric("parseStates")
@@ -31,12 +31,20 @@ setGeneric("parseSessions",
 #' false for tbl_df object)
 #' @param archive A logical specifying if an archived file will be created. File will
 #' be saved as MasterListArchive followed by a timestamp in the current directory.
+#' @param option Additional arguments that can be supplied to the XML/RJSONIO parsers
+#' @note Additional arguments should only be used when formatting errors cause a
+#' fatal error that you believe can be recovered without sacraficing your data.
+#' For example, an invalid unicode character may appear in a single location in the
+#' document, in the middle of the text string.  In that case, you may wish to add:
+#' options = c(NOCDATA, NOERROR, RECOVER) to the internal call to the XML parser.
+#' By default option = c(RECOVER, NOCDATA) is specified
 #' @docType methods
 #' @rdname parseMasterList-methods
 #' @family LegiScan API Parser Generics
 #' @export parseMasterList
 setGeneric("parseMasterList",
-		   def = function(rawMasterList, dataframe = FALSE, archive = TRUE) {
+		   def = function(rawMasterList, dataframe = FALSE, archive = TRUE,
+		   						option = c(RECOVER, NOCDATA)) {
 		   	standardGeneric("parseMasterList")
 		   })
 
@@ -79,7 +87,7 @@ setGeneric("parseRollCall",
 #' @param dataframe If TRUE method returns a data.frame object;
 #' if FALSE the method returns a tbl_df object
 #' @docType methods
-#' @rdname parseSponsors-methods
+#' @rdname parseSponsor-methods
 #' @family LegiScan API Parser Generics
 #' @export parseSponsor
 setGeneric("parseSponsor",
@@ -89,13 +97,13 @@ setGeneric("parseSponsor",
 
 #' @title LegiScan Parser Methods - parseQuery
 #' @description Generic method for parsing data retrieved from search API call
-#' @param query An object with the returned data from the search method
+#' @param theQuery An object with the returned data from the search method
 #' @docType methods
 #' @rdname parseQuery-methods
 #' @family LegiScan API Parser Generics
 #' @export parseQuery
 setGeneric("parseQuery",
-		   def = function(query) {
+		   def = function(theQuery) {
 		   	standardGeneric("parseQuery")
 		   })
 

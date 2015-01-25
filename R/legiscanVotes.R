@@ -23,6 +23,10 @@
 #' @name legiscanVotes
 legiscanVotes <- function(file) {
 
+	# Create a timestamp when the function begins
+	parseTime <- as.data.frame(lubridate::now()) %>% dplyr::as_data_frame()
+	names(parseTime) <- "parse_timestamp"
+
 	# Parse the XML tree
 	voteobject <- XML::xmlRoot(XML::xmlParse(file))
 
@@ -42,8 +46,12 @@ legiscanVotes <- function(file) {
 	votes <- XML::xmlToDataFrame(voteobject[["roll_call"]][["votes"]],
 							stringsAsFactors = FALSE)
 
+	voteID <- meta[, c(1:3)]
+
 	# Add the roll call, bill IDs, and date to the votes table
-	votes <- dplyr::bind_cols(meta[, c(1:3)], votes)
+	votes <- dplyr::bind_cols(voteID[rep(seq_len(nrow(voteID)),
+			  				nrow(votes)), ], votes,
+							parseTime[rep(seq_len(1), nrow(votes)), ])
 
 	# Store both data frames in a single list object
 	votesOnBill <- list(meta = meta, records = votes)

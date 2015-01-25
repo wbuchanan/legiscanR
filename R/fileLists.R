@@ -26,29 +26,29 @@
 fileLists <- function(fileobject) {
 
 	# Parse all of the session named people lists
-	peoples <- plyr::llply(fileobject, FUN = function(x) { x[[3]] })
+	peoples <- plyr::llply(fileobject, .fun = function(x) { x[[3]] })
 
 	# Create people files object with all of the full file paths/names
 	# To the peoples data
-	peopleFiles <- plyr::llply(peoples, FUN = function(x) {
+	peopleFiles <- plyr::llply(peoples, .fun = function(x) {
 		as.list(outer(x[[1]], x[[2]], FUN = paste0))
 	})
 
 	# Parse all of the session named voting records lists
-	votes <- plyr::llply(fileobject, FUN = function(x) { x[[2]] })
+	votes <- plyr::llply(fileobject, .fun = function(x) { x[[2]] })
 
 	# Create votes files object with all of the full file paths/names
 	# To the voting records data
-	voteFiles <- plyr::llply(votes, FUN = function(x) {
+	voteFiles <- plyr::llply(votes, .fun = function(x) {
 		as.list(outer(x[[1]], x[[2]], FUN = paste0))
 	})
 
 	# Parse all of the session named bill lists
-	bills <- plyr::llply(fileobject, FUN = function(x) { x[[1]] })
+	bills <- plyr::llply(fileobject, .fun = function(x) { x[[1]] })
 
 	# Create bill files object with all of the full file paths/names
 	# To the bill data
-	billFiles <- plyr::llply(bills, FUN = function(x) {
+	billFiles <- plyr::llply(bills, .fun = function(x) {
 		as.list(outer(x[[1]], x[[2]], FUN = paste0))
 	})
 

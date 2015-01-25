@@ -3,7 +3,7 @@
 #' @title Wrappers - Parsing/Cleaning State List
 #' @description
 #' This is a wrapper function for the parseStates method
-#' @param rawStateList Object returned from the stateList method for the LegiScan class
+#' @param StateList Object returned from the stateList method for the LegiScan class
 #' @param data A logical indicating whether the function should return
 #' a data frame object (TRUE) or return a list (FALSE)
 #' @return Returns the texts object with the full text of the bill(s) joined to
@@ -11,10 +11,13 @@
 #' @family LegiScan Wrapper Functions
 #' @name cleanStates
 #' @export cleanStates
-cleanStates <- function(rawStateList, data = FALSE) {
+cleanStates <- function(StateList, data = FALSE) {
+
+	# Verify that the the StateList came from the states method
+	if (length(StateList) == 2 && class(StateList) == "list") {
 
 		# Select the first element from the list only
-		states <- rawStateList[[1]]
+		states <- StateList[[1]]
 
 		# Pass the object to the method
 		clStates <- parseStates(rawStateList = states, dataframe = data)
@@ -22,13 +25,16 @@ cleanStates <- function(rawStateList, data = FALSE) {
 		# Return the object
 		return(clStates)
 
+	} else {
+		stop("StateList did not have length == 2 or was not a list object")
+	}
 }
 
 
 #' @title Wrappers - Parsing/Cleaning Sessions List
 #' @description
 #' This is a wrapper function for the parseSessions method
-#' @param rawSessionList Object returned from the sessions method for the LegiScan class
+#' @param SessionList Object returned from the sessions method for the LegiScan class
 #' @param data A logical indicating whether the function should return
 #' a data frame object (TRUE) or return a list (FALSE)
 #' @return Returns the texts object with the full text of the bill(s) joined to
@@ -36,10 +42,13 @@ cleanStates <- function(rawStateList, data = FALSE) {
 #' @family LegiScan Wrapper Functions
 #' @name cleanSessions
 #' @export cleanSessions
-cleanSessions <- function(rawSessionList, data = FALSE) {
+cleanSessions <- function(SessionList, data = FALSE) {
+
+	# Verify that the the bill object came from the sessions method
+	if (length(SessionList) == 2 && class(SessionList) == "list") {
 
 		# Select the first element from the list only
-		sessions <- rawSessionList[[1]]
+		sessions <- SessionList[[1]]
 
 		# Pass the object to the method
 		clSession <- parseSessions(rawSessionList = sessions, dataframe = data)
@@ -47,6 +56,9 @@ cleanSessions <- function(rawSessionList, data = FALSE) {
 		# Return the object
 		return(clSession)
 
+	} else {
+		stop("SessionList did not have length == 2 or was not a list object")
+	}
 }
 
 
@@ -54,26 +66,38 @@ cleanSessions <- function(rawSessionList, data = FALSE) {
 #' @title Wrappers - Parsing/Cleaning Master Lists
 #' @description
 #' This is a wrapper function for the parseMasterList method
-#' @param rawMasterList Object returned from the masterList method for the LegiScan class
+#' @param MasterList Object returned from the masterList method for the LegiScan class
 #' @param data A logical indicating whether the function should return
 #' a data frame object (TRUE) or a tbl_df object (FALSE)
 #' @param makeArchive A logical indicating whether or not to save an archive file
+#' @param xmloptions Is used to specify additional options to the xmlParse
+#' used to define the behavior of the underlying XML parsing engine.  By default,
+#' xmloptions = c(RECOVER, NOCDATA) is specified
 #' @return Returns the master list of all legislation post processing/cleaning
 #' @family LegiScan Wrapper Functions
 #' @name cleanMasterList
 #' @export cleanMasterList
-cleanMasterList <- function(rawMasterList, data = FALSE, makeArchive = FALSE) {
+cleanMasterList <- function(MasterList, data = FALSE, makeArchive = TRUE,
+										xmloptions = c(RECOVER, NOCDATA)) {
+
+	# Verify that the the MasterList object came from the masterList method
+	if (length(MasterList) == 2 && class(MasterList) == "list") {
 
 		# Select the first element from the list only
-		MasterList <- rawMasterList[[1]]
+		theMasterList <- MasterList[[1]]
+
+		if (class(theMasterList) == "character") xmloptions <- NULL
 
 		# Pass the object to the method
-		clMasterList <- parseMasterList(MasterList, dataframe = data,
-										archive = makeArchive)
+		clMasterList <- parseMasterList(rawMasterList = theMasterList, dataframe = data,
+									archive = makeArchive, option = xmloptions)
 
 		# Return the object
 		return(clMasterList)
 
+	} else {
+		stop("MasterList did not have length == 2 or was not a list object")
+	}
 }
 
 
@@ -81,7 +105,7 @@ cleanMasterList <- function(rawMasterList, data = FALSE, makeArchive = FALSE) {
 #' @title Wrappers - Parsing/Cleaning Bill Data
 #' @description
 #' This is a wrapper function for the parseBill method
-#' @param billobject Object returned from the bill method for the LegiScan class
+#' @param BillObject An object returned from the bill method for the LegiScan class
 #' @param data A logical indicating whether the function should return
 #' separate data frame objects (TRUE) or return a list of data frames (FALSE)
 #' @param text A character parameter passed to the parseBill method to identify
@@ -91,28 +115,28 @@ cleanMasterList <- function(rawMasterList, data = FALSE, makeArchive = FALSE) {
 #' @family LegiScan Wrapper Functions
 #' @name cleanBill
 #' @export cleanBill
-cleanBill <- function(billobject, data = FALSE, text = "") {
+cleanBill <- function(BillObject, data = FALSE, text = "") {
 	# Verify that the the bill object came from the getBill method
-	if (length(billobject) == 2 && class(billobject) == "list") {
+	if (length(BillObject) == 2 && class(BillObject) == "list") {
 
 		# Retrieve the first element of the billobject list
-		billob <- billobject[[1]]
+		billob <- BillObject[[1]]
 
 		# Pass arguments along to the parseBill method
 		if (data == FALSE) {
-			bills <- parseBill(billob, dataframe = data, fullText = text)
+			bills <- parseBill(rawBill = billob, dataframe = data, fullText = text)
 			return(bills)
 		} else {
 			# Call the parseBill method and then pass the returned data frame
 			# objects back to the global environment
-			parseBill(billob, dataframe = data, fullText = text)
+			parseBill(rawBill = billob, dataframe = data, fullText = text)
 
 			# Return individual data frame objects
 	  		billmeta <<- billMeta; sponsors <<- sponsors; texts <<- texts;
-	  		progress <<- progress; committees <<- committees
+	  		progress <<- progress; committees <<- committees; votes <<- votes
 		}
 	} else {
-		stop("The object passed to billobject did not have length == 2")
+		stop("BillObject did not have length == 2 or was not a list object")
 	}
 }
 
@@ -131,6 +155,9 @@ cleanBill <- function(billobject, data = FALSE, text = "") {
 #' @export cleanBillText
 cleanBillText <- function(BillText) {
 
+	# Verify that the the BillText object came from the billText method
+	if (length(BillText) == 2 && class(BillText) == "list") {
+
 		# Select the first element from the list only
 		rawBillText <- BillText[[1]]
 
@@ -140,6 +167,9 @@ cleanBillText <- function(BillText) {
 		# Return the object
 		return(clBillText)
 
+	} else {
+		stop("BillText did not have length == 2 or was not a list object")
+	}
 }
 
 #' @title Wrappers - Parsing/Cleaning API response to the getAmendment call
@@ -153,6 +183,9 @@ cleanBillText <- function(BillText) {
 #' @export cleanAmendment
 cleanAmendment <- function(anAmendment) {
 
+	# Verify that the the anAmendment object came from the amendment method
+	if (length(anAmendment) == 2 && class(anAmendment) == "list") {
+
 		# Select the first element from the list only
 		rawAmendment <- anAmendment[[1]]
 
@@ -161,6 +194,10 @@ cleanAmendment <- function(anAmendment) {
 
 		# Return the object
 		return(clAmendment)
+
+	} else {
+		stop("anAmendment did not have length == 2 or was not a list object")
+	}
 
 }
 
@@ -175,6 +212,9 @@ cleanAmendment <- function(anAmendment) {
 #' @export cleanSupplement
 cleanSupplement <- function(aSupplement) {
 
+	# Verify that the the aSupplement object came from the supplement method
+	if (length(aSupplement) == 2 && class(aSupplement) == "list") {
+
 		# Select the first element from the list only
 		rawSupplement <- aSupplement[[1]]
 
@@ -184,6 +224,9 @@ cleanSupplement <- function(aSupplement) {
 		# Return the object
 		return(clSupplement)
 
+	} else {
+		stop("aSupplement did not have length == 2 or was not a list object")
+	}
 }
 
 #' @title Wrappers - Parsing/Cleaning API response to the getRollCall call
@@ -198,6 +241,9 @@ cleanSupplement <- function(aSupplement) {
 #' @export cleanRollCall
 cleanRollCall <- function(aRollCall, data = FALSE) {
 
+	# Verify that the the aRollCall object came from the rollCall method
+	if (length(aRollCall) == 2 && class(aRollCall) == "list") {
+
 		# Select the first element from the list only
 		roll_call <- aRollCall[[1]]
 
@@ -207,6 +253,9 @@ cleanRollCall <- function(aRollCall, data = FALSE) {
 		# Return the object
 		return(clRollCall)
 
+	} else {
+		stop("aRollCall did not have length == 2 or was not a list object")
+	}
 }
 
 #' @title Wrappers - Parsing/Cleaning API response to the getSponsor call
@@ -221,14 +270,20 @@ cleanRollCall <- function(aRollCall, data = FALSE) {
 #' @export cleanSponsor
 cleanSponsor <- function(aSponsor, data = FALSE) {
 
+	# Verify that the the aSponsor object came from the sponsor method
+	if (length(aSponsor) == 2 && class(aSponsor) == "list") {
+
 		# Select the first element from the list only
-		roll_call <- aSponsor[[1]]
+		sponsors <- aSponsor[[1]]
 
 		# Pass the object to the method
-		clSponsor <- parseSponsor(theSponsor = roll_call, dataframe = data)
+		clSponsor <- parseSponsor(theSponsor = sponsors, dataframe = data)
 
 		# Return the object
 		return(clSponsor)
 
+	} else {
+		stop("aSponsor did not have length == 2 or was not a list object")
+	}
 }
 

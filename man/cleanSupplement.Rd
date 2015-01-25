@@ -7,7 +7,7 @@
 cleanSupplement(aSupplement)
 }
 \arguments{
-\item{anSupplement}{Object returned from the supplement method for the LegiScan class}
+\item{aSupplement}{Object returned from the supplement method for the LegiScan class}
 }
 \value{
 Returns a list containing meta data and the binary MIME object containing

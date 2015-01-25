@@ -17,19 +17,18 @@ makeDB <- function() {
     # People directory data
     people <- list(); votes <- list(); bills <- list()
     for (i in names(files[["people"]])) {
-    	people[[i]] <- plyr::ldply(files[["people"]][[i]], legiPersonJSON, .parallel = TRUE,
+    	people[[i]] <- plyr::ldply(files[["people"]][[i]], legiscanPerson, .parallel = TRUE,
     						 .paropts = list(.errorhandling = 'pass'))
-    	votes[[i]] <- plyr::llply(files[["votes"]][[i]], legiVotesJSON, .parallel = TRUE,
+    	votes[[i]] <- plyr::llply(files[["votes"]][[i]], legiscanVotes, .parallel = TRUE,
     	                    .paropts = list(.errorhandling = 'pass'))
-    	bills[[i]] <- plyr::llply(files[["bills"]][[i]], legiBillJSON, .parallel = TRUE,
-    	                    .paropts = list(.errorhandling = 'pass'))
+    	bills[[i]] <- plyr::llply(files[["bills"]][[i]], legiscanBill, 
+    						fullText = "state_link", .parallel = TRUE)
     }
-
 
     # Create a single dataframe with all the people data
     allPeople <- plyr::ldply(people, .parallel = TRUE, .id = "session_name",
-    				   FUN = function(x) {
-    				   	dplyr::bind_rows(x, stringsAsFactors = FALSE)
+    				   .fun = function(x) {
+    				   	dplyr::as_data_frame(x) %>% dplyr::bind_rows()
     				   }
     )
 
@@ -71,8 +70,9 @@ makeDB <- function() {
     billHist <- list()
     billProg <- list()
     billSpons <- list()
-    billTxt <- list()
     billMeta <- list()
+	billVotes <- list()
+	billTxt <- list()
 
     # Loop over the sessions
     for (i in names(votes2)) {
@@ -86,6 +86,7 @@ makeDB <- function() {
     	# per legislative session
     	recordVotes[[i]] <- plyr::ldply(votes2[[i]][names(votes2[[i]]) == "records"],
     							 dplyr::bind_rows, .parallel = TRUE)
+
     	# Combine all of the bill metadata into a single data frame per
     	# legislative session
     	billMeta[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "billMeta"],
@@ -93,60 +94,63 @@ makeDB <- function() {
 
     	# Combine all of the bill history data into a single data frame per
     	# legislative session
-    	billHist[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "billHist"],
+    	billHist[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "history"],
     						   dplyr::bind_rows, .parallel = TRUE)
 
     	# Combine all of the bill progress data into a single data frame per
     	# legislative session
-    	billProg[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "billProg"],
+    	billProg[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "progress"],
     						   dplyr::bind_rows, .parallel = TRUE)
 
     	# Combine all of the bill sponsors data into a single data frame per
     	# legislative session
-    	billSpons[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "billSpons"],
+    	billSpons[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "sponsors"],
     							dplyr::bind_rows, .parallel = TRUE)
 
+    	billVotes[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "votes"],
+    							dplyr::bind_rows, .parallel = TRUE)
+    	
     	# Combine all of the bill text data into a single data frame per
     	# legislative session
-    	billTxt[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "billTxt"],
+    	billTxt[[i]] <- plyr::ldply(bills2[[i]][names(bills2[[i]]) == "texts"],
     								dplyr::bind_rows, .parallel = TRUE)
 
     } # End of Loop
 
     # Remove the object i
-    rm(i)
+    rm(i, bills2); gc()
 
     # Convert the list of voting metadata data frames into a single data frame
     # object including the session name in the data frame
     metaVotes2 <- plyr::ldply(metaVotes, .id = "session_name", .parallel = TRUE,
-    				   FUN = function(x) {
-    				   	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				   })
+    				   	dplyr::bind_rows)
 
     # Convert the list of individual voting records data frames into a single
     # data frame object including the session name in the data frame
     recordVotes2 <- plyr::ldply(recordVotes, .id = "session_name", .parallel = TRUE,
-    					 FUN = function(x) {
-    					 	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    					 })
+    					 dplyr::bind_rows)
 
     # Remove unneeded variables from these objects
-    metaVotes3 <- metaVotes2[, -2]
-    recordVotes3 <- recordVotes2[, -2]
+    metaVotes2 <- metaVotes2[, -2]
+    recordVotes2 <- recordVotes2[, -2]
 
-    metaVotes4 <- metaVotes3
-    recordVotes4 <- recordVotes3
 
-    # Recast the session name variables
-    metaVotes4$session_name <- toString(metaVotes3$session_name)
-    recordVotes4$session_name <- toString(recordVotes3$session_name)
+	# Recast the session name variables
+    metaVotes2$session_name <- as.character(metaVotes2$session_name)
+    recordVotes2$session_name <- as.character(recordVotes2$session_name)
+	metaVotes2[, 2] <- as.numeric(metaVotes2[, 2])
+	metaVotes2[, 3] <- as.numeric(metaVotes2[, 3])
+	recordVotes2[, 2] <- as.numeric(recordVotes2[, 2])
+	recordVotes2[, 3] <- as.numeric(recordVotes2[, 3])
+	recordVotes2[, 5] <- as.numeric(recordVotes2[, 5])
+	recordVotes2[, 6] <- as.numeric(recordVotes2[, 6])
 
 
     # Generate all of the attributes needed to assign to the voting metadata
     # data frame, generate variable labels for the variables
     # These will be used later to add column comments to the data system
-    metaVotesAttr <- list(names = names(metaVotes4), class = "data.frame",
-    					row.names = as.integer(seq(1, nrow(metaVotes4), 1)),
+    metaVotesAttr <- list(names = names(metaVotes2), class = "data.frame",
+    					row.names = as.integer(seq(1, nrow(metaVotes2), 1)),
     					var.labels = list(session_name = "Name of the legislative session",
     					roll_call_id = "Legiscan Roll Call ID value from the Legiscan API",
     					bill_id = "Legiscan Bill ID from the Legiscan API",
@@ -159,8 +163,8 @@ makeDB <- function() {
     					passed = "Indicator of whether or not the bill was passed"))
 
 
-    recordVotesAttr <- list(names = names(recordVotes4), class = "data.frame",
-    					row.names = as.integer(seq(1, nrow(recordVotes4), 1)),
+    recordVotesAttr <- list(names = names(recordVotes2), class = "data.frame",
+    					row.names = as.integer(seq(1, nrow(recordVotes2), 1)),
     					var.labels = list(session_name = "Name of the legislative session",
     					roll_call_id = "Legiscan Roll Call ID value from the Legiscan API",
     					bill_id = "Legiscan Bill ID from the Legiscan API",
@@ -170,43 +174,39 @@ makeDB <- function() {
     					vote_text = "Text indicating the meaning of the corresponding vote_id code"))
 
     # Assign the attributes to the tables
-    attributes(metaVotes4) <- metaVotesAttr
-    attributes(recordVotes4) <- recordVotesAttr
+    # attributes(metaVotes2) <- metaVotesAttr
+    # attributes(recordVotes2) <- recordVotesAttr
 
     # Convert the list of bill metadata data frames into a single data frame
     # object including the session name in the data frame
-    billMeta <- plyr::ldply(billMeta, .id = "session_name", .parallel = TRUE,
-    				  FUN = function(x) {
-    				  	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				  })
-
+    billMeta2 <- plyr::ldply(billMeta, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billMeta2 <- billMeta2[, -2]; billMeta2$session_name <- as.character(billMeta2$session_name)
+    meta <- names(billMeta2); meta <- meta[-19]; billMeta2 <- billMeta2[, meta]
+    	
     # Convert the list of bill history data frames into a single data frame
     # object including the session name in the data frame
-    billHist <- plyr::ldply(billHist, .id = "session_name", .parallel = TRUE,
-    				  FUN = function(x) {
-    				  	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				  })
-
+    billHist2 <- plyr::ldply(billHist, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billHist2 <- billHist2[, -2]; billHist2$session_name <- as.character(billHist2$session_name)
+    	
     # Convert the list of bill progress data frames into a single data frame
     # object including the session name in the data frame
-    billProg <- plyr::ldply(billProg, .id = "session_name", .parallel = TRUE,
-    				  FUN = function(x) {
-    				  	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				  })
+    billProg2 <- plyr::ldply(billProg, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billProg2 <- billProg2[, -2]; billProg2$session_name <- as.character(billProg2$session_name)
 
     # Convert the list of bill sponsor data frames into a single data frame
     # object including the session name in the data frame
-    billSpons <- plyr::ldply(billSpons, .id = "session_name", .parallel = TRUE,
-    				   FUN = function(x) {
-    				   	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				   })
+    billSpons2 <- plyr::ldply(billSpons, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billSpons2 <- billSpons2[, -2]; billSpons2$session_name <- as.character(billSpons2$session_name)
 
-    # Convert the list of bill text data frames into a single data frame
+    billVotes2 <- plyr::ldply(billVotes, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billVotes2 <- billVotes2[, -2]; billVotes2$session_name <- as.character(billVotes2$session_name)
+	billVotes2$event <- as.numeric(billVotes2$event)
+	
+	
+	# Convert the list of bill text data frames into a single data frame
     # object including the session name in the data frame
-    billTxt <- plyr::ldply(billTxt, .id = "session_name", .parallel = TRUE,
-    				 FUN = function(x) {
-    				 	dplyr::bind_rows(x, stringsAsFactors = FALSE)
-    				 })
+    billTxt2 <- plyr::ldply(billTxt, .id = "session_name", .parallel = TRUE, dplyr::bind_rows)
+	billTxt2 <- billTxt2[, -2]; billTxt2$session_name <- as.character(billTxt2$session_name)
 
 }
 

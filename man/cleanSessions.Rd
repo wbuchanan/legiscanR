@@ -4,10 +4,10 @@
 \alias{cleanSessions}
 \title{Wrappers - Parsing/Cleaning Sessions List}
 \usage{
-cleanSessions(rawSessionList, data = FALSE)
+cleanSessions(SessionList, data = FALSE)
 }
 \arguments{
-\item{rawSessionList}{Object returned from the sessions method for the LegiScan class}
+\item{SessionList}{Object returned from the sessions method for the LegiScan class}
 
 \item{data}{A logical indicating whether the function should return
 a data frame object (TRUE) or return a list (FALSE)}
