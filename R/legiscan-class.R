@@ -36,7 +36,7 @@ validLegiScan <- function(object) {
 	# Make sure the format slot is one of the accepted formats
 	# Object passed all validation criteria
 
-	if (object@urlBase != "http://api.legiscan.com/?key=") FALSE
+	if (object@urlBase != "https://api.legiscan.com/?key=") FALSE
 	else if (class(object@api) != "character" || nchar(object@api) < 5) FALSE
 	else if (!(object@format %in% c("JSON", "XML"))) FALSE
 	else TRUE
@@ -61,7 +61,7 @@ setValidity("LegiScan", validLegiScan)
 legiscanR <- function(...) {
 
 	# Initialize new object of class LegiScan
-	legiScanObject <- new("LegiScan", ...);
+	legiScanObject <- new("LegiScan", ...)
 
 	# Validate object/return if valid object
 	validObject(legiScanObject); return(legiScanObject)
@@ -81,9 +81,9 @@ setMethod("initialize", "LegiScan",
 		  	# Set default values if nothing specified
 		  	if (missing(urlBase) || is.null(urlBase) || is.na(urlBase)) {
 		  		cat(paste("Missing, NULL, or NA urlBase argument;",
-							"setting @urlBase = 'http://api.legiscan.com/?key='",
+							"setting @urlBase = 'https://api.legiscan.com/?key='",
 							sep = "\n"))
-		  		.Object@urlBase <- "http://api.legiscan.com/?key="
+		  		.Object@urlBase <- "https://api.legiscan.com/?key="
 		  	} else {
 		  		.Object@urlBase <- urlBase
 		  	}
