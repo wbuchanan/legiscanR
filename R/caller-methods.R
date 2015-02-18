@@ -12,6 +12,7 @@
 #' }
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export stateList
 #' @rdname stateList-methods
 #' @aliases stateList,LegiScan-method
@@ -22,8 +23,14 @@ setMethod(f = "stateList",
 		  	# Construct the URL for the API Call
 		  	requestURL <- paste0(getUrl(legiscan), getAPI(legiscan), "&op=getStateList")
 
-		  	# Use getURL from RCurl to make the API call and Assign appropriate class
-		  	statelist <- getURL(requestURL); statelist <- xjformat(statelist)
+		  	# Test URL Status
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	statelist <- RCurl::getURL(requestURL); statelist <- xjformat(statelist)
+		  	} else {
+		  		# Error filler
+		  		statelist <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getStateList = statelist, url = requestURL)
@@ -45,6 +52,7 @@ setMethod(f = "stateList",
 #' sessionList(myLegiScan, "MS")
 #' }
 #' @importFrom RCurl getURL
+#' @importFROM httr http_status GET
 #' @export sessionList
 #' @rdname sessionList-methods
 #' @aliases sessionList,LegiScan,character-method
@@ -60,7 +68,13 @@ setMethod(f = "sessionList",
 		  						 "&op=getSessionList", state)
 
 		  	# Create sessionlist object with result of API call
-		  	sessionlist <- getURL(requestURL); sessionlist <- xjformat(sessionlist)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	sessionlist <- RCurl::getURL(requestURL); sessionlist <- xjformat(sessionlist)
+		  	} else {
+		  		# Error filler
+		  		sessionlist <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getSessionList = sessionlist, url = requestURL)
@@ -90,6 +104,7 @@ setMethod(f = "sessionList",
 #' abbreviation.  However, a second method is available which will select the
 #' data based on the session id number assigned by LegiScan.
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export masterList
 #' @rdname masterList-methods
 #' @aliases masterList,LegiScan,character,missing-method
@@ -105,8 +120,13 @@ setMethod(f = "masterList",
 		  						 "&op=getMasterList", state)
 
 		  	# Submit the request to the API
-		  	masterlist <- RCurl::getURL(requestURL)
-	  		masterlist <- xjformat(masterlist)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	masterlist <- RCurl::getURL(requestURL); masterlist <- xjformat(masterlist)
+		  	} else {
+		  		# Error filler
+		  		masterlist <- httr::GET(requestURL)$message
+		  	}
 
 	  		# Put calling URL and results into single list object
 	  		results <- list(getMasterList = masterlist, url = requestURL)
@@ -124,6 +144,7 @@ setMethod(f = "masterList",
 #' text of bills, as well as bill_id and billnumber identifiers.
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export masterList
 #' @rdname masterList-methods
 #' @aliases masterList,LegiScan,missing,missing-method
@@ -148,9 +169,14 @@ setMethod(f = "masterList",
 		  	requestURL <- paste0(getUrl(legiscan), getAPI(legiscan),
 		  						 "&op=getMasterList", session_id)
 
-			# Make the API call
-		  	masterlist <- RCurl::getURL(requestURL)
-			masterlist <- xjformat(masterlist)
+		  	# Submit the request to the API
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	masterlist <- RCurl::getURL(requestURL); masterlist <- xjformat(masterlist)
+		  	} else {
+		  		# Error filler
+		  		masterlist <- httr::GET(requestURL)$message
+		  	}
 
 			# Put calling URL and results into single list object
 			results <- list(getMasterList = masterlist, url = requestURL)
@@ -166,6 +192,7 @@ setMethod(f = "masterList",
 #' full text (doc_id) identifier, and voting records identifiers
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export bill
 #' @rdname bill-methods
 #' @aliases bill,LegiScan,numeric,missing,missing-method
@@ -191,7 +218,14 @@ setMethod(f = "bill",
 		  						 "&op=getBill", bill_id)
 
 		  	# Make call to the API and assign the correct class
-		  	theBill <- RCurl::getURL(requestURL); theBill <- xjformat(theBill)
+		  	# Submit the request to the API
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	theBill <- RCurl::getURL(requestURL); theBill <- xjformat(theBill)
+		  	} else {
+		  		# Error filler
+		  		theBill <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getBill = theBill, url = requestURL)
@@ -208,6 +242,7 @@ setMethod(f = "bill",
 #' full text (doc_id) identifier, and voting records identifiers
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export bill
 #' @rdname bill-methods
 #' @aliases bill,LegiScan,missing,character,numeric-method
@@ -236,7 +271,13 @@ setMethod(f = "bill",
 		  						 "&op=getBill", state, billnumber)
 
 		  	# Send request to the API
-		  	theBill <- RCurl::getURL(requestURL); theBill <- xjformat(theBill)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	theBill <- RCurl::getURL(requestURL); theBill <- xjformat(theBill)
+		  	} else {
+		  		# Error filler
+		  		theBill <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getBill = theBill, url = requestURL)
@@ -252,6 +293,7 @@ setMethod(f = "bill",
 #' and MIME type for the text.  The text is encoded in base64.
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export billText
 #' @rdname billText-methods
 #' @aliases billText,LegiScan,numeric-method
@@ -277,8 +319,13 @@ setMethod(f = "billText",
 		  						 "&op=getBillText", doc_id)
 
 		  	# Request data from the API
-		  	theBillText <- RCurl::getURL(requestURL)
-		  	theBillText <- xjformat(theBillText)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	theBillText <- RCurl::getURL(requestURL); theBillText <- xjformat(theBillText)
+		  	} else {
+		  		# Error filler
+		  		theBillText <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getBillText = theBillText, url = requestURL)
@@ -292,6 +339,7 @@ setMethod(f = "billText",
 #' @description Generic method for the LegiScan getAmendment API call
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export amendment
 #' @rdname amendment-methods
 #' @aliases amendment,LegiScan,numeric-method
@@ -317,8 +365,13 @@ setMethod(f = "amendment",
 		  						 "&op=getAmendment", amendment_id)
 
 		  	# Make API call
-		  	theAmendment <- RCurl::getURL(requestURL)
-		  	theAmendment <- xjformat(theAmendment)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	theAmendment <- RCurl::getURL(requestURL); theAmendment <- xjformat(theAmendment)
+		  	} else {
+		  		# Error filler
+		  		theAmendment <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getAmendment = theAmendment, url = requestURL)
@@ -332,6 +385,7 @@ setMethod(f = "amendment",
 #' @description Generic method for the LegiScan getSupplement API call
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export supplement
 #' @rdname supplement-methods
 #' @aliases supplement,LegiScan,numeric-method
@@ -357,8 +411,13 @@ setMethod(f = "supplement",
 		  						 "&op=getSupplement", supplement_id)
 
 		  	# Make the call to the API
-		  	theSupplement <- RCurl::getURL(requestURL)
-		  	theSupplement <- xjformat(theSupplement)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	theSupplement <- RCurl::getURL(requestURL); theSupplement <- xjformat(theSupplement)
+		  	} else {
+		  		# Error filler
+		  		theSupplement <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getSupplement = theSupplement, url = requestURL)
@@ -372,6 +431,7 @@ setMethod(f = "supplement",
 #' @description Generic method for the LegiScan getRollcall API call
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export rollCall
 #' @rdname rollCall-methods
 #' @aliases rollCall,LegiScan,numeric-method
@@ -397,8 +457,13 @@ setMethod(f = "rollCall",
 		  						 "&op=getRollcall", roll_call_id)
 
 			# Makle the request to the API
-			roll_call <- RCurl::getURL(requestURL)
-			roll_call <- xjformat(roll_call)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	roll_call <- RCurl::getURL(requestURL); roll_call <- xjformat(roll_call)
+		  	} else {
+		  		# Error filler
+		  		roll_call <- httr::GET(requestURL)$message
+		  	}
 
 			# Put calling URL and results into single list object
 			results <- list(getRollCall = roll_call, url = requestURL)
@@ -412,6 +477,7 @@ setMethod(f = "rollCall",
 #' @description Generic method for the LegiScan sponsor API call
 #' @family LegiScan API Caller Methods
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export sponsor
 #' @rdname sponsor-methods
 #' @aliases sponsor,LegiScan,numeric-method
@@ -436,7 +502,14 @@ setMethod(f = "sponsor",
 		  						 "&op=getSponsor", people_id)
 
 		  	# Use RCurl to make the API call
-		  	people <- RCurl::getURL(requestURL); people <- xjformat(people)
+			# Makle the request to the API
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	people <- RCurl::getURL(requestURL); people <- xjformat(people)
+		  	} else {
+		  		# Error filler
+		  		people <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(getSponsor = people, url = requestURL)
@@ -459,6 +532,7 @@ setMethod(f = "sponsor",
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,numeric,missing,missing,missing-method
@@ -488,8 +562,13 @@ setMethod(f = "legisearch",
 		  						 "&op=search", state, billnumber)
 
 		  	# Submit the request to the API
-		  	queryResults <- RCurl::getURL(requestURL)
-		  	queryResults <- xjformat(queryResults)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	queryResults <- RCurl::getURL(requestURL); queryResults <- xjformat(queryResults)
+		  	} else {
+		  		# Error filler
+		  		queryResults <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(search = queryResults, url = requestURL)
@@ -512,6 +591,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,missing,character,missing,missing-method
@@ -531,8 +611,13 @@ setMethod(f = "legisearch",
 		  						 "&op=search", state, query)
 
 		  	# Submit the query to the API
-		  	queryResults <- RCurl::getURL(requestURL)
-		  	queryResults <- xjformat(queryResults)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	queryResults <- RCurl::getURL(requestURL); queryResults <- xjformat(queryResults)
+		  	} else {
+		  		# Error filler
+		  		queryResults <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(search = queryResults, url = requestURL)
@@ -555,6 +640,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,missing,character,numeric,missing-method
@@ -577,8 +663,13 @@ setMethod(f = "legisearch",
 		  						 "&op=search", state, query, year)
 
 		  	# Send the API Call
-		  	queryResults <- RCurl::getURL(requestURL)
-		  	queryResults <- xjformat(queryResults)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	queryResults <- RCurl::getURL(requestURL); queryResults <- xjformat(queryResults)
+		  	} else {
+		  		# Error filler
+		  		queryResults <- httr::GET(requestURL)$message
+		  	}
 
 		  	# Put calling URL and results into single list object
 		  	results <- list(search = queryResults, url = requestURL)
@@ -602,6 +693,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,missing,character,missing,numeric-method
@@ -625,7 +717,13 @@ setMethod(f = "legisearch",
 		  						 "&op=search", state, query, page)
 
 			# Make the call to the API
-			queryResults <- RCurl::getURL(requestURL)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	queryResults <- RCurl::getURL(requestURL); queryResults <- xjformat(queryResults)
+		  	} else {
+		  		# Error filler
+		  		queryResults <- httr::GET(requestURL)$message
+		  	}
 
 			# Put calling URL and results into single list object
 			results <- list(search = queryResults, url = requestURL)
@@ -649,6 +747,7 @@ setMethod(f = "legisearch",
 #' 		\item{"year >= 1900"}{Exact Year Only}
 #' }
 #' @importFrom RCurl getURL
+#' @importFrom httr http_status GET
 #' @export legisearch
 #' @rdname legisearch-methods
 #' @aliases legisearch,LegiScan,character,missing,character,numeric,numeric-method
@@ -679,8 +778,13 @@ setMethod(f = "legisearch",
 		  						 "&op=search", state, query, year, page)
 
 		  	# Make the call to the API
-		  	queryResults <- RCurl::getURL(requestURL)
-	  		queryResults <- xjformat(queryResults)
+		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+			  	# Use getURL from RCurl to make the API call and Assign appropriate class
+			  	queryResults <- RCurl::getURL(requestURL); queryResults <- xjformat(queryResults)
+		  	} else {
+		  		# Error filler
+		  		queryResults <- httr::GET(requestURL)$message
+		  	}
 
 	  		# Put calling URL and results into single list object
 	  		results <- list(search = queryResults, url = requestURL)
