@@ -219,12 +219,15 @@ setMethod(f = "bill",
 
 		  	# Make call to the API and assign the correct class
 		  	# Submit the request to the API
-		  	if (httr::http_status(httr::GET(requestURL))$message == "success: (200) OK") {
+		  	if ("ssl" %in% names(RCurl::curlVersion()$features) && url.exists(requestURL)) {
+		  		theBill <- tryCatch(getURL(requestURL), error = function(e) {
+		  			httr::GET(requestURL)$message
+		  		})
 			  	# Use getURL from RCurl to make the API call and Assign appropriate class
-			  	theBill <- RCurl::getURL(requestURL); theBill <- xjformat(theBill)
+			  	theBill <- xjformat(theBill)
 		  	} else {
 		  		# Error filler
-		  		theBill <- httr::GET(requestURL)$message
+		  		theBill <- "URL does not exist OR ssl is not an available Curl feature on your system"
 		  	}
 
 		  	# Put calling URL and results into single list object

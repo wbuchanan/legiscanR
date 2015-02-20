@@ -255,7 +255,7 @@ setMethod(f = "parseMasterList",
 	  						dplyr::bind_cols(bills)
 
 	# Generate Correct # of rows for the parseTime variable
-	parseTime <- as.data.frame(rep(parseTime, nrow(parsed)))
+	parseTime <- as.data.frame(parseTime[rep(seq_len(nrow(parseTime)), nrow(parsed)), ])
 
 	# Add parse timestamp to data frame
 	parsed <- dplyr::bind_cols(parsed, parseTime)
@@ -407,7 +407,7 @@ setMethod(f = "parseBill",
   					bill_type = "bill_type", body = "body",
   					body_id = "body_id", current_body = "current_body",
   					current_body_id = "current_body_id", title = "title",
-  					description = "description", committee = "committee")
+  					description = "description")
 
 	  	# Pull out a meta data record that will also provide the
 	  	# ID data for subsequent objects
@@ -424,7 +424,7 @@ setMethod(f = "parseBill",
 	  	billMeta$current_body_id <- as.numeric(billMeta$current_body_id)
 
 	  	# Create a vector  of Bill ID data
-	  	billID <- billMeta[c(1:6)]
+	  	billID <- cbind(billMeta[c(1:6)], parseTime)
 
 	  	# Build data frame objects for the bill sponsors,
 	  	# history, progress, committees, and texts
@@ -474,25 +474,19 @@ setMethod(f = "parseBill",
 					}) %>% dplyr::bind_rows()
 
 	  	# Add ID vector to each of the data objects
-  	  	sponsors <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(sponsors)), ], sponsors,
-  	  					parseTime[rep(seq_len(1), nrow(sponsors)), ])
+  	  	people <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(sponsors)), ], sponsors)
   	  	history <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(history)), ], history,
-  	  					parseTime[rep(seq_len(1), nrow(history)), ])
+  						nrow(history)), ], history)
   	  	committees <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(committees)), ], committees,
-  	  					parseTime[rep(seq_len(1), nrow(committees)), ])
+  						nrow(committees)), ], committees)
   	  	progress <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(progress)), ], progress,
-  	  					parseTime[rep(seq_len(1), nrow(progress)), ])
+  						nrow(progress)), ], progress)
   	  	votes <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(votes)), ], votes,
-  	  					parseTime[rep(seq_len(1), nrow(votes)), ])
+  						nrow(votes)), ], votes)
   	  	texts <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(texts)), ], texts,
-  	  					parseTime[rep(seq_len(1), nrow(texts)), ])
-		billMeta <- dplyr::bind_cols(billMeta, parseTime[rep(seq_len(1), nrow(billMeta)), ])
+  						nrow(texts)), ], texts)
+		billMeta <- dplyr::bind_cols(billMeta, parseTime)
 
 	  	# Check for retreival value for full bill texts
 	  	if (fullText %in% c("state_link", "url")) {
@@ -601,7 +595,7 @@ setMethod(f = "parseBill",
   					bill_type = "bill_type", body = "body",
   					body_id = "body_id", current_body = "current_body",
   					current_body_id = "current_body_id", title = "title",
-  					description = "description", committee = "committee")
+  					description = "description")
 
 	  	# Pull out a meta data record that will also provide the
 	  	# ID data for subsequent objects
@@ -612,7 +606,7 @@ setMethod(f = "parseBill",
 	  	billMeta$status_date <- lubridate::ymd(billMeta$status_date)
 
 	  	# Create a vector  of Bill ID data
-	  	billID <- billMeta[c(1:6)]
+	  	billID <- cbind(billMeta[c(1:6)], parseTime)
 
 	  	# Build data frame objects for the bill sponsors,
 	  	# history, progress, committees, and texts
@@ -657,25 +651,19 @@ setMethod(f = "parseBill",
 					}) %>% dplyr::bind_rows()
 
 	  	# Add ID vector to each of the data objects
-  	  	sponsors <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(sponsors)), ], sponsors,
-  	  					parseTime[rep(seq_len(1), nrow(sponsors)), ])
+  	  	people <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
+  						nrow(sponsors)), ], sponsors)
   	  	history <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(history)), ], history,
-  	  					parseTime[rep(seq_len(1), nrow(history)), ])
+  						nrow(history)), ], history)
   	  	committees <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(committees)), ], committees,
-  	  					parseTime[rep(seq_len(1), nrow(committees)), ])
+  						nrow(committees)), ], committees)
   	  	progress <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(progress)), ], progress,
-  	  					parseTime[rep(seq_len(1), nrow(progress)), ])
+  						nrow(progress)), ], progress)
   	  	votes <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(votes)), ], votes,
-  	  					parseTime[rep(seq_len(1), nrow(votes)), ])
+  						nrow(votes)), ], votes)
   	  	texts <- dplyr::bind_cols(billID[rep(seq_len(nrow(billID)),
-  						nrow(texts)), ], texts,
-  	  					parseTime[rep(seq_len(1), nrow(texts)), ])
-		billMeta <- dplyr::bind_cols(billMeta, parseTime[rep(seq_len(1), nrow(billMeta)), ])
+  						nrow(texts)), ], texts)
+		billMeta <- dplyr::bind_cols(billMeta, parseTime)
 
 	  	# Check for retreival value for full bill texts
 	  	if (fullText %in% c("state_link", "url")) {
