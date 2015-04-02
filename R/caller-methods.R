@@ -219,7 +219,7 @@ setMethod(f = "bill",
 
 		  	# Make call to the API and assign the correct class
 		  	# Submit the request to the API
-		  	if ("ssl" %in% names(RCurl::curlVersion()$features) && url.exists(requestURL)) {
+		  	if ("ssl" %in% names(RCurl::curlVersion()$features) && RCurl::url.exists(requestURL)) {
 		  		theBill <- tryCatch(getURL(requestURL), error = function(e) {
 		  			httr::GET(requestURL)$message
 		  		})
