@@ -191,7 +191,7 @@ setMethod(f = "masterList",
 #' Detailed data on specific bill including - but not limited to: sponsors,
 #' full text (doc_id) identifier, and voting records identifiers
 #' @family LegiScan API Caller Methods
-#' @importFrom RCurl getURL
+#' @importFrom RCurl getURL url.exists
 #' @importFrom httr http_status GET
 #' @export bill
 #' @rdname bill-methods
